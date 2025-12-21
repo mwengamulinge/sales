@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales & Commission Tracker</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .container { max-width: 400px; margin: auto; }
+        .card { background: var(--card); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2 { margin-top: 0; font-size: 1.2rem; color: var(--primary); }
+        label { display: block; margin: 10px 0 5px; font-size: 0.9rem; font-weight: bold; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        button { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        .result-box { background: #e0e7ff; padding: 15px; border-radius: 8px; text-align: center; margin-top: 10px; }
+        .commission-amt { font-size: 1.5rem; color: var(--primary); display: block; font-weight: bold; }
+        .log-item { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 0.9rem; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>Record Daily Sale</h2>
+        <label>Date</label>
+        <input type="date" id="saleDate">
+        
+        <label>Sale Amount ($)</label>
+        <input type="number" id="saleAmount" placeholder="0.00" step="0.01">
+        
+        <button onclick="saveSale()">Save Sale</button>
+    </div>
+
+    <div class="card">
+        <h2>Calculate Commission (12%)</h2>
+        <div style="display: flex; gap: 10px;">
+            <div>
+                <label>Start</label>
+                <input type="date" id="startDate">
+            </div>
+            <div>
+                <label>End</label>
+                <input type="date" id="endDate">
+            </div>
+        </div>
+        <button onclick="calculateCommission()" style="background: #10b981;">Show Commission</button>
+        
+        <div class="result-box" id="resultArea" style="display:none;">
+            <span id="resultLabel">Total Commission:</span>
+            <span class="commission-amt" id="commissionDisplay">$0.00</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Recent Sales</h2>
+        <div id="salesLog"></div>
+        <button onclick="clearAllData()" style="background: #ef4444; margin-top: 20px; font-size: 0.8rem; padding: 5px;">Clear All Data</button>
+    </div>
+</div>
+
+<script>
+    // Auto-load today's date into the forms
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('saleDate').value = today;
+    document.getElementById('startDate').value = today;
+    document.getElementById('endDate').value = today;
+
+    // Load and Save Logic
+    let sales = JSON.parse(localStorage.getItem('mySales')) || [];
+
+    function saveSale() {
+        const date = document.getElementById('saleDate').value;
+        const amount = parseFloat(document.getElementById('saleAmount').value);
+
+        if (!amount || amount <= 0) {
+            alert("Please enter a valid amount");
+            return;
+        }
+
+        sales.push({ date, amount });
+        localStorage.setItem('mySales', JSON.stringify(sales));
+        
+        document.getElementById('saleAmount').value = '';
+        updateHistory();
+        alert("Sale saved!");
+    }
+
+    function calculateCommission() {
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+        
+        const filtered = sales.filter(s => s.date >= start && s.date <= end);
+        const totalSales = filtered.reduce((sum, s) => sum + s.amount, 0);
+        const commission = totalSales * 0.12;
+
+        document.getElementById('resultArea').style.display = 'block';
+        document.getElementById('commissionDisplay').innerText = `$${commission.toFixed(2)}`;
+    }
+
+    function updateHistory() {
+        const log = document.getElementById('salesLog');
+        log.innerHTML = sales.slice(-5).reverse().map(s => `
+            <div class="log-item">
+                <span>${s.date}</span>
+                <strong>$${s.amount.toFixed(2)}</strong>
+            </div>
+        `).join('');
+    }
+
+    function clearAllData() {
+        if(confirm("Are you sure you want to delete all records?")) {
+            localStorage.clear();
+            sales = [];
+            updateHistory();
+        }
+    }
+
+    // Initial load
+    updateHistory();
+</script>
+
+</body>
+</html>
