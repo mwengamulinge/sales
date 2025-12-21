@@ -3,123 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ram 11</title>
+    <title>Ram 11 | Sales</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #f2f4f7;
+            --bg: #f8fafc;
             --white: #ffffff;
-            --shadow-light: -8px -8px 15px rgba(255, 255, 255, 0.9);
-            --shadow-dark: 8px 8px 15px rgba(166, 180, 200, 0.3);
         }
         body {
-            background-color: var(--bg);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: #334155;
-            padding: 2rem;
+            padding: 20px;
+            min-height: 100vh;
         }
 
-        /* Glassmorphism Container */
         .glass-panel {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.3));
+            backdrop-filter: blur(20px) saturate(180%);
             border-radius: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: var(--shadow-dark);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
         }
 
-        /* Neuromorphic Inputs (Inset) */
-        .input-soft {
-            background: var(--bg);
-            border: none;
+        .input-inset {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 16px;
-            box-shadow: inset 4px 4px 8px rgba(166, 180, 200, 0.3), 
-                        inset -4px -4px 8px rgba(255, 255, 255, 0.9);
-            padding: 1rem;
+            padding: 1.25rem;
             transition: all 0.3s ease;
+            color: #1e293b;
+            font-weight: 600;
         }
 
-        /* Neuromorphic Buttons (Outset) */
-        .btn-soft {
-            background: var(--bg);
+        .input-inset:focus {
+            background: rgba(255, 255, 255, 0.7);
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-pop {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 16px;
-            box-shadow: var(--shadow-dark), var(--shadow-light);
-            font-weight: 700;
-            transition: all 0.2s ease;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+            font-weight: 800;
+            transition: all 0.3s ease;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .btn-soft:active {
-            box-shadow: inset 4px 4px 8px rgba(166, 180, 200, 0.3), 
-                        inset -4px -4px 8px rgba(255, 255, 255, 0.9);
-            transform: scale(0.98);
+        .btn-pop:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
         }
 
-        /* Color Accents from your image */
-        .accent-blue { color: #3b82f6; }
-        .accent-green { color: #10b981; }
-        .accent-red { color: #ef4444; }
+        .btn-pop:active {
+            transform: translateY(0);
+        }
 
+        .table-row {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .table-row:hover {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-value {
+            background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            margin: 1.5rem 0;
+        }
+
+        .glass-label {
+            color: rgba(30, 41, 59, 0.7);
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+        }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex items-center justify-center">
 
-<div class="max-w-6xl mx-auto">
-    <div class="flex justify-between items-center mb-12 px-4">
-        <h1 class="text-4xl font-black tracking-tight italic">Ram 11</h1>
-        <div class="bg-white/40 px-4 py-2 rounded-full border border-white/60 text-[10px] font-bold tracking-widest uppercase">
-            Live Sync: <span class="text-green-500" id="statusText">Connecting...</span>
+<div class="w-full max-w-6xl mx-auto">
+    <header class="flex flex-col md:flex-row justify-between items-center mb-12 px-6 gap-4">
+        <div>
+            <h1 class="text-5xl font-black tracking-tighter text-white drop-shadow-lg">Ram 11</h1>
+            <p class="text-[10px] font-bold text-white/60 uppercase tracking-[4px] mt-1 ml-1">Premium Dashboard</p>
         </div>
-    </div>
+        <div class="flex items-center gap-4 bg-white/30 backdrop-blur-xl p-2 pr-6 rounded-full border border-white/40">
+            <div class="w-10 h-10 rounded-full bg-emerald-400/30 backdrop-blur-sm flex items-center justify-center">
+                <div class="w-3 h-3 bg-emerald-300 rounded-full animate-pulse shadow-lg shadow-emerald-300/50"></div>
+            </div>
+            <span class="text-[10px] font-black text-white uppercase tracking-widest" id="statusText">System Ready</span>
+        </div>
+    </header>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <div class="lg:col-span-4 space-y-8">
-            <div class="glass-panel p-8">
+            <div class="glass-panel p-10">
+                <h3 class="text-sm font-black glass-label uppercase tracking-widest mb-6">New Sale</h3>
                 <div class="space-y-6">
                     <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Entry Date</label>
-                        <input type="date" id="saleDate" class="w-full input-soft">
+                        <label class="text-[10px] font-bold glass-label uppercase tracking-wider ml-2 mb-2 block">Date</label>
+                        <input type="date" id="saleDate" class="w-full input-inset font-bold">
                     </div>
+                    
+                    <div class="section-divider"></div>
+                    
                     <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Sale Amount</label>
-                        <input type="number" id="saleAmount" placeholder="0.00" class="w-full input-soft text-lg font-bold">
+                        <label class="text-[10px] font-bold glass-label uppercase tracking-wider ml-2 mb-2 block">Total Sale ($)</label>
+                        <input type="number" id="saleAmount" placeholder="0.00" class="w-full input-inset text-2xl font-black">
                     </div>
-                    <button onclick="addSale()" id="saveBtn" class="w-full py-4 btn-soft text-blue-600 uppercase text-xs tracking-tighter">
-                        Confirm & Save
+                    
+                    <button onclick="addSale()" id="saveBtn" class="w-full py-5 btn-pop mt-4">
+                        Save Sale
                     </button>
                 </div>
             </div>
 
-            <div class="glass-panel p-6">
-                <p class="text-[10px] font-bold text-slate-400 uppercase mb-4">Interval Filter</p>
-                <div class="flex gap-2">
-                    <input type="date" id="startRange" class="w-1/2 input-soft text-[10px]">
-                    <input type="date" id="endRange" class="w-1/2 input-soft text-[10px]">
+            <div class="glass-panel p-8">
+                <h3 class="text-sm font-black glass-label uppercase tracking-widest mb-6">Filter Period</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[10px] font-bold glass-label uppercase tracking-wider ml-2 mb-2 block">From</label>
+                        <input type="date" id="startRange" class="w-full input-inset text-xs py-3 px-4">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold glass-label uppercase tracking-wider ml-2 mb-2 block">To</label>
+                        <input type="date" id="endRange" class="w-full input-inset text-xs py-3 px-4">
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="lg:col-span-8 space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="glass-panel p-8">
-                    <p class="text-xs font-bold text-slate-400 uppercase">Gross Revenue</p>
-                    <h2 id="totalSales" class="text-4xl font-black mt-2 text-slate-800">$0.00</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass-panel p-10 relative overflow-hidden">
+                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Revenue</p>
+                    <h2 id="totalSales" class="text-5xl font-black mt-4 stat-value">$0.00</h2>
+                    <div class="absolute -bottom-4 -right-4 opacity-5">
+                        <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
+                    </div>
                 </div>
-                <div class="glass-panel p-8">
-                    <p class="text-xs font-bold text-slate-400 uppercase">Comm. (12%)</p>
-                    <h2 id="totalComm" class="text-4xl font-black mt-2 accent-green">$0.00</h2>
+                <div class="glass-panel p-10 bg-emerald-50/30">
+                    <p class="text-xs font-black text-emerald-600/60 uppercase tracking-widest">Commission (12%)</p>
+                    <h2 id="totalComm" class="text-5xl font-black mt-4 text-emerald-500">$0.00</h2>
                 </div>
             </div>
 
-            <div class="glass-panel overflow-hidden">
-                <div class="p-6 border-b border-white/40 flex justify-between items-center bg-white/20">
-                    <h3 class="font-bold text-sm text-slate-500">Activity Log</h3>
-                </div>
-                <div class="overflow-y-auto max-h-[400px]">
-                    <table class="w-full">
+            <div class="glass-panel p-4 overflow-hidden">
+                <div class="overflow-y-auto max-h-[500px] px-4">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="text-[10px] text-slate-400 uppercase font-black border-b border-slate-100">
+                                <th class="py-6 text-left">Date</th>
+                                <th class="py-6 text-left">Amount</th>
+                                <th class="py-6 text-right">Earned</th>
+                            </tr>
+                        </thead>
                         <tbody id="tableBody">
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -128,48 +184,38 @@
 </div>
 
 <script>
-    // 1. CONFIGURATION (Paste your real keys here)
-    const SB_URL = "YOUR_SUPABASE_URL";
-    const SB_KEY = "YOUR_SUPABASE_ANON_KEY";
+    const SB_URL = "https://yakeklqcujwcmibzxbwt.supabase.co";
+    const SB_KEY = "sb_publishable_43MxFUwc6ndsbMA8HBPcJg_yZ23uCfm";
     const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-    // Initial Date Loading
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('saleDate').value = today;
     document.getElementById('startRange').value = today.substring(0, 8) + '01';
     document.getElementById('endRange').value = today;
 
-    // ADD SALE FUNCTION
     async function addSale() {
         const btn = document.getElementById('saveBtn');
-        const date = document.getElementById('saleDate').value;
         const amount = parseFloat(document.getElementById('saleAmount').value);
+        const date = document.getElementById('saleDate').value;
         
-        if(!amount || isNaN(amount)) return alert("Please enter a valid amount");
+        if(!amount) return;
 
-        btn.innerText = "Saving...";
-        const { error } = await supabase
-            .from('sales')
-            .insert([{ sale_date: date, amount: amount }]);
+        btn.innerText = "Syncing...";
+        const { error } = await supabase.from('sales').insert([{ sale_date: date, amount: amount }]);
         
-        if (error) {
-            console.error(error);
-            alert("Error saving: " + error.message);
-        } else {
-            document.getElementById('saleAmount').value = '';
-            // Refresh occurs automatically via subscription
-        }
-        btn.innerText = "Confirm & Save";
+        if (error) alert("Sync failed: " + error.message);
+        else document.getElementById('saleAmount').value = '';
+        
+        btn.innerText = "Save Sale";
+        fetchData();
     }
 
-    // DELETE SALE FUNCTION
     async function deleteSale(id) {
-        if(!confirm("Delete this record?")) return;
-        const { error } = await supabase.from('sales').delete().eq('id', id);
-        if(error) alert(error.message);
+        if(!confirm("Remove this entry?")) return;
+        await supabase.from('sales').delete().eq('id', id);
+        fetchData();
     }
 
-    // FETCH & RENDER DATA
     async function fetchData() {
         const start = document.getElementById('startRange').value;
         const end = document.getElementById('endRange').value;
@@ -182,45 +228,39 @@
             .order('sale_date', { ascending: false });
 
         if (error) {
-            document.getElementById('statusText').innerText = "Offline";
+            document.getElementById('statusText').innerText = "Link Error";
             return;
         }
 
-        document.getElementById('statusText').innerText = "Online";
+        document.getElementById('statusText').innerText = "System Online";
 
-        let totalS = 0;
+        let total = 0;
         const body = document.getElementById('tableBody');
-        
-        body.innerHTML = data.length ? data.map(s => {
-            totalS += parseFloat(s.amount);
+        body.innerHTML = data.map(s => {
+            total += parseFloat(s.amount);
             return `
-                <tr class="border-t border-white/40 hover:bg-white/40 transition">
-                    <td class="p-6 text-xs font-bold text-slate-400">${s.sale_date}</td>
-                    <td class="p-6 font-bold text-slate-700 text-lg">$${parseFloat(s.amount).toFixed(2)}</td>
-                    <td class="p-6 text-right">
-                        <span class="text-xs font-black text-emerald-500 bg-emerald-50 px-3 py-1 rounded-full">+$${(s.amount * 0.12).toFixed(2)}</span>
-                        <button onclick="deleteSale('${s.id}')" class="ml-4 text-slate-300 hover:text-red-400 transition">✕</button>
+                <tr class="table-row">
+                    <td class="py-6 text-xs font-bold text-slate-400">${s.sale_date}</td>
+                    <td class="py-6 font-black text-slate-800">$${parseFloat(s.amount).toFixed(2)}</td>
+                    <td class="py-6 text-right">
+                        <span class="text-xs font-black text-emerald-500 mr-4">+$${(s.amount * 0.12).toFixed(2)}</span>
+                        <button onclick="deleteSale('${s.id}')" class="text-slate-200 hover:text-red-400 transition italic text-[10px]">Delete</button>
                     </td>
                 </tr>
             `;
-        }).join('') : `<div class="p-10 text-center text-slate-300">No records in this range</div>`;
+        }).join('');
 
-        document.getElementById('totalSales').innerText = `$${totalS.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-        document.getElementById('totalComm').innerText = `$${(totalS * 0.12).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById('totalSales').innerText = `$${total.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById('totalComm').innerText = `$${(total * 0.12).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
     }
 
-    // REAL-TIME SUBSCRIPTION
-    supabase.channel('sales-main')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => {
-            fetchData();
-        })
+    supabase.channel('cloud-sync')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, fetchData)
         .subscribe();
 
-    // Filter Listeners
     document.getElementById('startRange').addEventListener('change', fetchData);
     document.getElementById('endRange').addEventListener('change', fetchData);
 
-    // Initial Load
     fetchData();
 </script>
 
