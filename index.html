@@ -3,128 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Sales Dashboard</title>
+    <title>Sales Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #f1f5f9; }
-        .stats-card { transition: transform 0.2s; }
-        .stats-card:hover { transform: translateY(-5px); }
+        body {
+            background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        /* Glassmorphism Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        /* 3D Button Style */
+        .btn-3d {
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #4338ca; /* Darker bottom edge */
+            position: relative;
+            top: 0;
+        }
+
+        .btn-3d:active {
+            top: 3px;
+            box-shadow: 0 1px 0 #4338ca;
+        }
+
+        .btn-emerald-3d {
+            box-shadow: 0 4px 0 #059669;
+        }
+        
+        .btn-emerald-3d:active {
+            box-shadow: 0 1px 0 #059669;
+        }
+
+        /* Form Inputs */
+        input {
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #6366f1;
+            background: white;
+            outline: none;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Glowing Radio/Check marks style */
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+        }
     </style>
 </head>
-<body class="flex flex-col md:flex-row min-h-screen">
+<body class="p-4 md:p-8">
 
-    <aside class="w-full md:w-80 bg-slate-900 text-white p-6">
-        <h1 class="text-2xl font-bold mb-8 text-indigo-400">Sales Admin</h1>
+<div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <div class="lg:col-span-4 space-y-6">
+        <div class="glass-card p-8">
+            <h1 class="text-2xl font-extrabold mb-6 tracking-tight text-indigo-600">Filing Center</h1>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-bold uppercase text-slate-400 ml-1">Sale Date</label>
+                    <input type="date" id="saleDate" class="w-full mt-1 p-3 rounded-xl">
+                </div>
+                <div>
+                    <label class="text-xs font-bold uppercase text-slate-400 ml-1">Sale Amount ($)</label>
+                    <input type="number" id="saleAmount" placeholder="0.00" class="w-full mt-1 p-3 rounded-xl font-semibold">
+                </div>
+                <button onclick="addSale()" id="saveBtn" class="w-full btn-3d bg-indigo-600 text-white p-4 rounded-xl font-bold text-lg mt-4">
+                    Confirm Entry
+                </button>
+            </div>
+        </div>
+
+        <div class="glass-card p-8">
+            <h2 class="font-bold text-slate-600 mb-4">Interval Settings</h2>
+            <div class="grid grid-cols-2 gap-3">
+                <input type="date" id="startRange" class="p-2 text-xs rounded-lg">
+                <input type="date" id="endRange" class="p-2 text-xs rounded-lg">
+            </div>
+            <button onclick="fetchData()" class="w-full btn-3d btn-emerald-3d bg-emerald-500 text-white p-2 rounded-xl font-bold text-sm mt-4">
+                Update Dashboard
+            </button>
+        </div>
+    </div>
+
+    <div class="lg:col-span-8 space-y-6">
+        <div class="grid grid-cols-2 gap-6">
+            <div class="glass-card p-6 text-center border-t-4 border-indigo-400">
+                <p class="text-sm font-bold text-slate-400 uppercase tracking-widest">Total Sales</p>
+                <h3 id="totalSales" class="text-3xl font-black text-slate-800 mt-2">$0.00</h3>
+            </div>
+            <div class="glass-card p-6 text-center border-t-4 border-emerald-400">
+                <p class="text-sm font-bold text-slate-400 uppercase tracking-widest">Commission</p>
+                <h3 id="totalComm" class="text-3xl font-black text-emerald-500 mt-2">$0.00</h3>
+            </div>
+        </div>
+
+        <div class="glass-card overflow-hidden">
+            <div class="p-6 border-b border-white/40 flex justify-between items-center">
+                <h3 class="font-black text-slate-700 uppercase tracking-tight">Recent Activity</h3>
+                <div class="flex items-center gap-2">
+                    <div class="status-dot"></div>
+                    <span class="text-xs font-bold text-emerald-600">LIVE SYNC</span>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-white/30 text-slate-500 text-xs font-black uppercase">
+                        <tr>
+                            <th class="p-4">Date</th>
+                            <th class="p-4">Amount</th>
+                            <th class="p-4 text-right">Comm (12%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-white/20">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // CONFIG: INSERT YOUR KEYS HERE
+    const SB_URL = "https://yakeklqcujwcmibzxbwt.supabase.co";
+    const SB_KEY = "sb_secret_NNF5fnk9uYXTFlcJxQgFdA_Nhnpa0DD";
+    const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+
+    // Initial Setup
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('saleDate').value = today;
+    document.getElementById('startRange').value = today.substring(0, 8) + '01';
+    document.getElementById('endRange').value = today;
+
+    async function addSale() {
+        const btn = document.getElementById('saveBtn');
+        const date = document.getElementById('saleDate').value;
+        const amount = parseFloat(document.getElementById('saleAmount').value);
+        if(!amount) return;
+
+        btn.innerText = "Processing...";
+        const { error } = await supabase.from('sales').insert([{ sale_date: date, amount: amount }]);
         
-        <div class="space-y-4">
-            <div>
-                <label class="block text-xs font-semibold uppercase text-slate-400">Date of Sale</label>
-                <input type="date" id="saleDate" class="w-full mt-1 p-2 bg-slate-800 border border-slate-700 rounded text-white">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold uppercase text-slate-400">Amount ($)</label>
-                <input type="number" id="saleAmount" placeholder="0.00" class="w-full mt-1 p-2 bg-slate-800 border border-slate-700 rounded text-white">
-            </div>
-            <button onclick="addSale()" class="w-full bg-indigo-600 hover:bg-indigo-500 p-3 rounded font-bold transition">Add to Record</button>
-        </div>
-
-        <hr class="my-8 border-slate-700">
-
-        <div class="space-y-4">
-            <h3 class="text-sm font-bold text-slate-400">FILTER BY INTERVAL</h3>
-            <input type="date" id="startRange" class="w-full p-2 bg-slate-800 border border-slate-700 rounded text-sm">
-            <input type="date" id="endRange" class="w-full p-2 bg-slate-800 border border-slate-700 rounded text-sm">
-            <button onclick="renderDashboard()" class="w-full bg-emerald-600 hover:bg-emerald-500 p-2 rounded text-sm font-bold">Update View</button>
-        </div>
-    </aside>
-
-    <main class="flex-1 p-8">
-        <header class="flex justify-between items-center mb-8">
-            <h2 class="text-3xl font-bold text-slate-800">Business Overview</h2>
-            <div id="dateDisplay" class="text-slate-500 font-medium"></div>
-        </header>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="stats-card bg-white p-6 rounded-xl shadow-sm border-l-4 border-indigo-500">
-                <p class="text-slate-500 text-sm">Total Sales (Period)</p>
-                <h3 id="totalSales" class="text-2xl font-bold text-slate-800">$0.00</h3>
-            </div>
-            <div class="stats-card bg-white p-6 rounded-xl shadow-sm border-l-4 border-emerald-500">
-                <p class="text-slate-500 text-sm">Commission (12%)</p>
-                <h3 id="totalComm" class="text-2xl font-bold text-emerald-600">$0.00</h3>
-            </div>
-            <div class="stats-card bg-white p-6 rounded-xl shadow-sm border-l-4 border-amber-500">
-                <p class="text-slate-500 text-sm">Record Count</p>
-                <h3 id="recordCount" class="text-2xl font-bold text-slate-800">0</h3>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-            <table class="w-full text-left">
-                <thead class="bg-slate-50 border-bottom border-slate-100">
-                    <tr>
-                        <th class="p-4 font-semibold text-slate-600">Date</th>
-                        <th class="p-4 font-semibold text-slate-600">Sale Amount</th>
-                        <th class="p-4 font-semibold text-slate-600">Commission</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody" class="divide-y divide-slate-100">
-                    </tbody>
-            </table>
-        </div>
-    </main>
-
-    <script>
-        // Init Data
-        let sales = JSON.parse(localStorage.getItem('admin_sales')) || [];
+        if (error) alert(error.message);
+        else document.getElementById('saleAmount').value = '';
         
-        // Auto-set Dates
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('saleDate').value = today;
-        document.getElementById('startRange').value = today.substring(0, 8) + '01'; // First of month
-        document.getElementById('endRange').value = today;
+        btn.innerText = "Confirm Entry";
+        fetchData();
+    }
 
-        function addSale() {
-            const date = document.getElementById('saleDate').value;
-            const amount = parseFloat(document.getElementById('saleAmount').value);
-            
-            if(!amount) return alert("Enter amount");
-            
-            sales.push({ date, amount });
-            localStorage.setItem('admin_sales', JSON.stringify(sales));
-            document.getElementById('saleAmount').value = '';
-            renderDashboard();
-        }
+    async function fetchData() {
+        const start = document.getElementById('startRange').value;
+        const end = document.getElementById('endRange').value;
 
-        function renderDashboard() {
-            const start = document.getElementById('startRange').value;
-            const end = document.getElementById('endRange').value;
-            const tableBody = document.getElementById('tableBody');
-            
-            const filtered = sales.filter(s => s.date >= start && s.date <= end)
-                                  .sort((a,b) => new Date(b.date) - new Date(a.date));
+        const { data, error } = await supabase
+            .from('sales')
+            .select('*')
+            .gte('sale_date', start)
+            .lte('sale_date', end)
+            .order('sale_date', { ascending: false });
 
-            let totalS = 0;
-            tableBody.innerHTML = '';
+        if (error) return;
 
-            filtered.forEach(s => {
-                totalS += s.amount;
-                const comm = s.amount * 0.12;
-                tableBody.innerHTML += `
-                    <tr>
-                        <td class="p-4 text-slate-600">${s.date}</td>
-                        <td class="p-4 font-medium text-slate-800">$${s.amount.toFixed(2)}</td>
-                        <td class="p-4 text-emerald-600 font-bold">$${comm.toFixed(2)}</td>
-                    </tr>
-                `;
-            });
+        let total = 0;
+        const body = document.getElementById('tableBody');
+        body.innerHTML = data.map(s => {
+            total += s.amount;
+            return `
+                <tr class="hover:bg-white/20 transition">
+                    <td class="p-4 text-sm font-semibold text-slate-500">${s.sale_date}</td>
+                    <td class="p-4 text-lg font-bold text-slate-800">$${s.amount.toFixed(2)}</td>
+                    <td class="p-4 text-right text-emerald-600 font-black">$${(s.amount * 0.12).toFixed(2)}</td>
+                </tr>
+            `;
+        }).join('');
 
-            document.getElementById('totalSales').innerText = `$${totalS.toFixed(2)}`;
-            document.getElementById('totalComm').innerText = `$${(totalS * 0.12).toFixed(2)}`;
-            document.getElementById('recordCount').innerText = filtered.length;
-        }
+        document.getElementById('totalSales').innerText = `$${total.toFixed(2)}`;
+        document.getElementById('totalComm').innerText = `$${(total * 0.12).toFixed(2)}`;
+    }
 
-        renderDashboard();
-    </script>
+    // Live Subscription
+    supabase.channel('sales-sync')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, fetchData)
+        .subscribe();
+
+    fetchData();
+</script>
+
 </body>
 </html>
