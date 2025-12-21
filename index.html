@@ -3,127 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sales & Commission Tracker</title>
+    <title>Admin Sales Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --primary: #6366f1;
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #1e293b;
-        }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-        .container { max-width: 400px; margin: auto; }
-        .card { background: var(--card); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h2 { margin-top: 0; font-size: 1.2rem; color: var(--primary); }
-        label { display: block; margin: 10px 0 5px; font-size: 0.9rem; font-weight: bold; }
-        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
-        button { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-        .result-box { background: #e0e7ff; padding: 15px; border-radius: 8px; text-align: center; margin-top: 10px; }
-        .commission-amt { font-size: 1.5rem; color: var(--primary); display: block; font-weight: bold; }
-        .log-item { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 0.9rem; display: flex; justify-content: space-between; }
+        body { background-color: #f1f5f9; }
+        .stats-card { transition: transform 0.2s; }
+        .stats-card:hover { transform: translateY(-5px); }
     </style>
 </head>
-<body>
+<body class="flex flex-col md:flex-row min-h-screen">
 
-<div class="container">
-    <div class="card">
-        <h2>Record Daily Sale</h2>
-        <label>Date</label>
-        <input type="date" id="saleDate">
+    <aside class="w-full md:w-80 bg-slate-900 text-white p-6">
+        <h1 class="text-2xl font-bold mb-8 text-indigo-400">Sales Admin</h1>
         
-        <label>Sale Amount ($)</label>
-        <input type="number" id="saleAmount" placeholder="0.00" step="0.01">
-        
-        <button onclick="saveSale()">Save Sale</button>
-    </div>
-
-    <div class="card">
-        <h2>Calculate Commission (12%)</h2>
-        <div style="display: flex; gap: 10px;">
+        <div class="space-y-4">
             <div>
-                <label>Start</label>
-                <input type="date" id="startDate">
+                <label class="block text-xs font-semibold uppercase text-slate-400">Date of Sale</label>
+                <input type="date" id="saleDate" class="w-full mt-1 p-2 bg-slate-800 border border-slate-700 rounded text-white">
             </div>
             <div>
-                <label>End</label>
-                <input type="date" id="endDate">
+                <label class="block text-xs font-semibold uppercase text-slate-400">Amount ($)</label>
+                <input type="number" id="saleAmount" placeholder="0.00" class="w-full mt-1 p-2 bg-slate-800 border border-slate-700 rounded text-white">
+            </div>
+            <button onclick="addSale()" class="w-full bg-indigo-600 hover:bg-indigo-500 p-3 rounded font-bold transition">Add to Record</button>
+        </div>
+
+        <hr class="my-8 border-slate-700">
+
+        <div class="space-y-4">
+            <h3 class="text-sm font-bold text-slate-400">FILTER BY INTERVAL</h3>
+            <input type="date" id="startRange" class="w-full p-2 bg-slate-800 border border-slate-700 rounded text-sm">
+            <input type="date" id="endRange" class="w-full p-2 bg-slate-800 border border-slate-700 rounded text-sm">
+            <button onclick="renderDashboard()" class="w-full bg-emerald-600 hover:bg-emerald-500 p-2 rounded text-sm font-bold">Update View</button>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-8">
+        <header class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-bold text-slate-800">Business Overview</h2>
+            <div id="dateDisplay" class="text-slate-500 font-medium"></div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="stats-card bg-white p-6 rounded-xl shadow-sm border-l-4 border-indigo-500">
+                <p class="text-slate-500 text-sm">Total Sales (Period)</p>
+                <h3 id="totalSales" class="text-2xl font-bold text-slate-800">$0.00</h3>
+            </div>
+            <div class="stats-card bg-white p-6 rounded-xl shadow-sm border-l-4 border-emerald-500">
+                <p class="text-slate-500 text-sm">Commission (12%)</p>
+                <h3 id="totalComm" class="text-2xl font-bold text-emerald-600">$0.00</h3>
+            </div>
+            <div class="stats-card bg-white p-6 rounded-xl shadow-sm border-l-4 border-amber-500">
+                <p class="text-slate-500 text-sm">Record Count</p>
+                <h3 id="recordCount" class="text-2xl font-bold text-slate-800">0</h3>
             </div>
         </div>
-        <button onclick="calculateCommission()" style="background: #10b981;">Show Commission</button>
-        
-        <div class="result-box" id="resultArea" style="display:none;">
-            <span id="resultLabel">Total Commission:</span>
-            <span class="commission-amt" id="commissionDisplay">$0.00</span>
+
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50 border-bottom border-slate-100">
+                    <tr>
+                        <th class="p-4 font-semibold text-slate-600">Date</th>
+                        <th class="p-4 font-semibold text-slate-600">Sale Amount</th>
+                        <th class="p-4 font-semibold text-slate-600">Commission</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody" class="divide-y divide-slate-100">
+                    </tbody>
+            </table>
         </div>
-    </div>
+    </main>
 
-    <div class="card">
-        <h2>Recent Sales</h2>
-        <div id="salesLog"></div>
-        <button onclick="clearAllData()" style="background: #ef4444; margin-top: 20px; font-size: 0.8rem; padding: 5px;">Clear All Data</button>
-    </div>
-</div>
+    <script>
+        // Init Data
+        let sales = JSON.parse(localStorage.getItem('admin_sales')) || [];
+        
+        // Auto-set Dates
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('saleDate').value = today;
+        document.getElementById('startRange').value = today.substring(0, 8) + '01'; // First of month
+        document.getElementById('endRange').value = today;
 
-<script>
-    // Auto-load today's date into the forms
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('saleDate').value = today;
-    document.getElementById('startDate').value = today;
-    document.getElementById('endDate').value = today;
-
-    // Load and Save Logic
-    let sales = JSON.parse(localStorage.getItem('mySales')) || [];
-
-    function saveSale() {
-        const date = document.getElementById('saleDate').value;
-        const amount = parseFloat(document.getElementById('saleAmount').value);
-
-        if (!amount || amount <= 0) {
-            alert("Please enter a valid amount");
-            return;
+        function addSale() {
+            const date = document.getElementById('saleDate').value;
+            const amount = parseFloat(document.getElementById('saleAmount').value);
+            
+            if(!amount) return alert("Enter amount");
+            
+            sales.push({ date, amount });
+            localStorage.setItem('admin_sales', JSON.stringify(sales));
+            document.getElementById('saleAmount').value = '';
+            renderDashboard();
         }
 
-        sales.push({ date, amount });
-        localStorage.setItem('mySales', JSON.stringify(sales));
-        
-        document.getElementById('saleAmount').value = '';
-        updateHistory();
-        alert("Sale saved!");
-    }
+        function renderDashboard() {
+            const start = document.getElementById('startRange').value;
+            const end = document.getElementById('endRange').value;
+            const tableBody = document.getElementById('tableBody');
+            
+            const filtered = sales.filter(s => s.date >= start && s.date <= end)
+                                  .sort((a,b) => new Date(b.date) - new Date(a.date));
 
-    function calculateCommission() {
-        const start = document.getElementById('startDate').value;
-        const end = document.getElementById('endDate').value;
-        
-        const filtered = sales.filter(s => s.date >= start && s.date <= end);
-        const totalSales = filtered.reduce((sum, s) => sum + s.amount, 0);
-        const commission = totalSales * 0.12;
+            let totalS = 0;
+            tableBody.innerHTML = '';
 
-        document.getElementById('resultArea').style.display = 'block';
-        document.getElementById('commissionDisplay').innerText = `$${commission.toFixed(2)}`;
-    }
+            filtered.forEach(s => {
+                totalS += s.amount;
+                const comm = s.amount * 0.12;
+                tableBody.innerHTML += `
+                    <tr>
+                        <td class="p-4 text-slate-600">${s.date}</td>
+                        <td class="p-4 font-medium text-slate-800">$${s.amount.toFixed(2)}</td>
+                        <td class="p-4 text-emerald-600 font-bold">$${comm.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
 
-    function updateHistory() {
-        const log = document.getElementById('salesLog');
-        log.innerHTML = sales.slice(-5).reverse().map(s => `
-            <div class="log-item">
-                <span>${s.date}</span>
-                <strong>$${s.amount.toFixed(2)}</strong>
-            </div>
-        `).join('');
-    }
-
-    function clearAllData() {
-        if(confirm("Are you sure you want to delete all records?")) {
-            localStorage.clear();
-            sales = [];
-            updateHistory();
+            document.getElementById('totalSales').innerText = `$${totalS.toFixed(2)}`;
+            document.getElementById('totalComm').innerText = `$${(totalS * 0.12).toFixed(2)}`;
+            document.getElementById('recordCount').innerText = filtered.length;
         }
-    }
 
-    // Initial load
-    updateHistory();
-</script>
-
+        renderDashboard();
+    </script>
 </body>
 </html>
