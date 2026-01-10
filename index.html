@@ -7,11 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 50%, #e8e8e8 100%);
@@ -22,23 +18,13 @@
             font-size: 14px;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+        .container { max-width: 1000px; margin: 0 auto; }
 
-        /* Header Styling */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .logo h1 { font-size: 24px; font-weight: 600; }
         .logo p { font-size: 9px; color: rgba(0,0,0,0.4); text-transform: uppercase; letter-spacing: 2px; }
 
-        /* Monthly Navigation Bar */
+        /* Navigation Bar */
         .month-selector {
             display: flex;
             justify-content: space-between;
@@ -48,27 +34,11 @@
             padding: 12px 20px;
             border-radius: 16px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
         .month-display { font-weight: 600; font-size: 16px; }
+        .nav-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 14px; border-radius: 8px; cursor: pointer; }
 
-        .nav-btn {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        /* Main Layout Grid */
-        .grid {
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 20px;
-        }
+        .grid { display: grid; grid-template-columns: 320px 1fr; gap: 20px; }
 
         .glass-panel {
             background: rgba(255, 255, 255, 0.9);
@@ -77,69 +47,33 @@
             border: 1px solid rgba(0,0,0,0.05);
             padding: 24px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-        }
-
-        /* Stats Section */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
             margin-bottom: 20px;
         }
 
-        .stat-card {
-            background: #fff;
-            padding: 20px;
-            border-radius: 20px;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: #fff; padding: 20px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.05); }
         .stat-label { font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 5px; }
         .stat-value { font-size: 20px; font-weight: 600; }
 
-        /* Form Inputs */
+        /* Form */
         .input-group { margin-bottom: 15px; }
         .input-label { font-size: 10px; color: #888; text-transform: uppercase; display: block; margin-bottom: 5px; }
-        .input {
-            width: 100%;
-            background: #f9f9f9;
-            border: 1px solid #eee;
-            border-radius: 10px;
-            padding: 12px;
-            font-family: inherit;
-        }
+        .input { width: 100%; background: #f9f9f9; border: 1px solid #eee; border-radius: 10px; padding: 12px; font-family: inherit; font-size: 14px; }
+        .btn { width: 100%; background: #000; color: #fff; padding: 14px; border-radius: 10px; border: none; cursor: pointer; font-weight: 500; text-transform: uppercase; }
 
-        .btn {
-            width: 100%;
-            background: #000;
-            color: #fff;
-            padding: 14px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            text-transform: uppercase;
-            font-size: 11px;
-        }
-
-        /* Table Styling */
+        /* Table */
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; font-size: 10px; color: #888; padding: 10px; border-bottom: 1px solid #eee; }
         td { padding: 12px 10px; border-bottom: 1px solid #f9f9f9; font-size: 13px; }
-        .delete-btn { color: #ff4444; background: none; border: none; cursor: pointer; float: right; }
+        .delete-btn { color: #ff4444; background: none; border: none; cursor: pointer; font-size: 11px; float: right; }
 
-        /* MOBILE OPTIMIZATION: Single Column View */
+        /* MOBILE VIEW */
         @media (max-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr; /* Force single column */
-            }
-            .sidebar {
-                order: 2; /* Move input form below the sales list on mobile */
-            }
-            .main-content {
-                order: 1; /* Keep stats and list at the top */
-            }
-            .stat-value { font-size: 18px; }
+            .grid { display: flex; flex-direction: column; }
+            .stats-container { order: 1; }
+            .sidebar { order: 2; }
+            .table-container { order: 3; }
         }
     </style>
 </head>
@@ -149,9 +83,9 @@
     <div class="header">
         <div class="logo">
             <h1>Bebes 😊</h1>
-            <p>Sales Dashboard</p>
+            <p>Monthly Sales System</p>
         </div>
-        <div id="statusText" style="font-size: 10px; color: #10b981;">● System Live</div>
+        <div id="statusText" style="font-size: 10px; color: #10b981;">● Online</div>
     </div>
 
     <div class="month-selector">
@@ -161,25 +95,10 @@
     </div>
 
     <div class="grid">
-        <div class="sidebar">
-            <div class="glass-panel">
-                <p style="font-size: 11px; font-weight: 600; margin-bottom: 15px;">ADD NEW RECORD</p>
-                <div class="input-group">
-                    <label class="input-label">Date</label>
-                    <input type="date" id="saleDate" class="input">
-                </div>
-                <div class="input-group">
-                    <label class="input-label">Amount (KSH)</label>
-                    <input type="number" id="saleAmount" class="input" placeholder="Enter amount">
-                </div>
-                <button class="btn" id="saveBtn">Record Sale</button>
-            </div>
-        </div>
-
-        <div class="main-content">
+        <div class="stats-container">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-label">Month Total</div>
+                    <div class="stat-label">Total Sale</div>
                     <div class="stat-value" id="totalSales">KSH 0</div>
                 </div>
                 <div class="stat-card" style="background: #f0fff4;">
@@ -187,9 +106,25 @@
                     <div class="stat-value" id="totalComm" style="color: #10b981;">KSH 0</div>
                 </div>
             </div>
+        </div>
 
+        <div class="sidebar">
             <div class="glass-panel">
-                <table id="salesTable">
+                <div class="input-group">
+                    <label class="input-label">Date</label>
+                    <input type="date" id="saleDate" class="input">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Amount (KSH)</label>
+                    <input type="number" id="saleAmount" class="input" placeholder="0.00">
+                </div>
+                <button class="btn" id="saveBtn">Save Entry</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="glass-panel">
+                <table>
                     <thead>
                         <tr>
                             <th>Date</th>
@@ -197,8 +132,7 @@
                             <th style="text-align: right;">Action</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody">
-                        </tbody>
+                    <tbody id="tableBody"></tbody>
                 </table>
             </div>
         </div>
@@ -210,9 +144,15 @@
     const SB_KEY = "sb_publishable_43MxFUwc6ndsbMA8HBPcJg_yZ23uCfm";
     const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
-    // Initial State: Set to the 1st of current month
-    let viewDate = new Date();
-    viewDate.setDate(1); 
+    let viewDate = new Date(); // Start at today
+    viewDate.setDate(1); // Normalise to 1st of the month
+
+    function setTodayDate() {
+        const now = new Date();
+        const offset = now.getTimezoneOffset();
+        const localDate = new Date(now.getTime() - (offset * 60 * 1000));
+        document.getElementById('saleDate').value = localDate.toISOString().split('T')[0];
+    }
 
     function updateDisplay() {
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -226,87 +166,78 @@
     }
 
     async function fetchData() {
-        // Calculate start and end of selected month
-        const startOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).toISOString().split('T')[0];
-        const endOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).toISOString().split('T')[0];
+        // Precise start and end of the viewed month
+        const start = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).toISOString().split('T')[0];
+        const end = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).toISOString().split('T')[0];
 
-        try {
-            const { data, error } = await sb
-                .from('sales')
-                .select('*')
-                .gte('sale_date', startOfMonth)
-                .lte('sale_date', endOfMonth)
-                .order('sale_date', { ascending: false });
+        const { data, error } = await sb
+            .from('sales')
+            .select('*')
+            .gte('sale_date', start)
+            .lte('sale_date', end)
+            .order('sale_date', { ascending: false });
 
-            if (error) throw error;
-
-            let total = 0;
-            const body = document.getElementById('tableBody');
-            
-            if (!data || data.length === 0) {
-                body.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 40px; color: #ccc;">No records found</td></tr>';
-                document.getElementById('totalSales').textContent = 'KSH 0';
-                document.getElementById('totalComm').textContent = 'KSH 0';
-                return;
-            }
-
-            body.innerHTML = data.map(s => {
-                const amt = parseFloat(s.amount);
-                total += amt;
-                return `
-                    <tr>
-                        <td style="color: #888;">${s.sale_date.split('-').slice(1).join('/')}</td>
-                        <td style="font-weight: 500;">KSH ${amt.toLocaleString()}</td>
-                        <td><button class="delete-btn" onclick="deleteSale('${s.id}')">Delete</button></td>
-                    </tr>
-                `;
-            }).join('');
-
-            document.getElementById('totalSales').textContent = `KSH ${total.toLocaleString()}`;
-            document.getElementById('totalComm').textContent = `KSH ${(total * 0.12).toLocaleString()}`;
-        } catch (err) {
-            console.error(err);
+        let total = 0;
+        const body = document.getElementById('tableBody');
+        
+        if (!data || data.length === 0) {
+            body.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#999;">No records found for this month.</td></tr>';
+            document.getElementById('totalSales').textContent = 'KSH 0';
+            document.getElementById('totalComm').textContent = 'KSH 0';
+            return;
         }
+
+        body.innerHTML = data.map(s => {
+            const amt = parseFloat(s.amount);
+            total += amt;
+            return `<tr>
+                <td>${s.sale_date.split('-').reverse().slice(0,2).join('/')}</td>
+                <td style="font-weight:600;">KSH ${amt.toLocaleString()}</td>
+                <td><button class="delete-btn" onclick="deleteSale('${s.id}')">Delete</button></td>
+            </tr>`;
+        }).join('');
+
+        document.getElementById('totalSales').textContent = `KSH ${total.toLocaleString()}`;
+        document.getElementById('totalComm').textContent = `KSH ${(total * 0.12).toLocaleString()}`;
     }
 
     async function addSale() {
         const btn = document.getElementById('saveBtn');
         const amount = document.getElementById('saleAmount').value;
-        const date = document.getElementById('saleDate').value;
+        const dateInput = document.getElementById('saleDate').value;
 
-        if(!amount || !date) return alert("Fill all fields");
+        if(!amount || !dateInput) return alert("Missing data");
 
         btn.disabled = true;
-        btn.textContent = "Saving...";
-
-        const { error } = await sb.from('sales').insert([{ sale_date: date, amount: parseFloat(amount) }]);
+        
+        const { error } = await sb.from('sales').insert([{ 
+            sale_date: dateInput, 
+            amount: parseFloat(amount) 
+        }]);
         
         if (!error) {
             document.getElementById('saleAmount').value = '';
-            // If the user adds a sale for a different month than currently viewed, switch to it
-            const newSaleDate = new Date(date);
-            viewDate = new Date(newSaleDate.getFullYear(), newSaleDate.getMonth(), 1);
+            
+            // LOGIC FIX: Force the view to the month of the sale just added
+            const addedDate = new Date(dateInput);
+            viewDate = new Date(addedDate.getFullYear(), addedDate.getMonth(), 1);
+            
             updateDisplay();
-        } else {
-            alert("Error saving: " + error.message);
+            setTodayDate(); 
         }
         btn.disabled = false;
-        btn.textContent = "Record Sale";
     }
 
     async function deleteSale(id) {
-        if(confirm("Delete this record?")) {
+        if(confirm("Remove record?")) {
             await sb.from('sales').delete().eq('id', id);
             fetchData();
         }
     }
 
-    // Init
-    document.getElementById('saleDate').value = new Date().toISOString().split('T')[0];
-    document.getElementById('saveBtn').addEventListener('click', addSale);
+    setTodayDate();
     updateDisplay();
-
-    // Live Sync
+    document.getElementById('saveBtn').addEventListener('click', addSale);
     sb.channel('db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, fetchData).subscribe();
 </script>
 
