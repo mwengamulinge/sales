@@ -41,7 +41,7 @@
         .nav-btn { background: rgba(255,255,255,0.15); border: none; color: white; padding: 10px 18px; border-radius: 10px; cursor: pointer; transition: 0.2s; font-size: 12px; }
         .nav-btn:hover { background: rgba(255,255,255,0.25); }
 
-        /* Desktop Layout (Default) */
+        /* Desktop Layout */
         .grid { 
             display: grid; 
             grid-template-columns: 350px 1fr; 
@@ -66,7 +66,6 @@
             padding: 25px; 
             border-radius: 24px; 
             border: 1px solid rgba(0,0,0,0.06);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         }
         .stat-label { font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
         .stat-value { font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
@@ -74,28 +73,23 @@
         /* Form Controls */
         .input-group { margin-bottom: 20px; }
         .input-label { font-size: 10px; color: #888; text-transform: uppercase; display: block; margin-bottom: 8px; font-weight: 600; }
-        .input { width: 100%; background: #f5f5f5; border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; padding: 14px; font-family: inherit; font-size: 14px; transition: 0.2s; }
-        .input:focus { outline: none; background: #fff; border-color: #000; }
+        .input { width: 100%; background: #f5f5f5; border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; padding: 14px; font-family: inherit; font-size: 14px; }
         .btn { width: 100%; background: #000; color: #fff; padding: 16px; border-radius: 12px; border: none; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
 
         /* Table */
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; font-size: 10px; color: #888; padding: 15px 10px; border-bottom: 1px solid #eee; text-transform: uppercase; }
         td { padding: 18px 10px; border-bottom: 1px solid #f8f8f8; font-size: 14px; }
-        .delete-btn { color: #ff4444; background: none; border: none; cursor: pointer; font-size: 11px; font-weight: 500; opacity: 0.5; transition: 0.2s; }
+        .delete-btn { color: #ff4444; background: none; border: none; cursor: pointer; font-size: 11px; font-weight: 500; opacity: 0.5; }
         .delete-btn:hover { opacity: 1; }
 
-        /* MOBILE VIEW BREAKPOINT */
+        /* Mobile View */
         @media (max-width: 850px) {
             body { padding: 12px; }
             .grid { display: flex; flex-direction: column; gap: 0; }
-            
-            /* The specific order you loved */
             .main-content-stats { order: 1; width: 100%; }
             .sidebar { order: 2; width: 100%; }
             .main-content-table { order: 3; width: 100%; }
-            
-            .header { padding: 0 5px; }
             .stat-value { font-size: 19px; }
             .glass-panel { padding: 20px; }
         }
@@ -109,7 +103,7 @@
             <h1>Bebes 😊</h1>
             <p>Premium Dashboard</p>
         </div>
-        <div id="statusText" style="font-size: 10px; color: #10b981; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">● Online</div>
+        <div id="statusText" style="font-size: 10px; color: #10b981; font-weight: 600; text-transform: uppercase;">● Online</div>
     </div>
 
     <div class="month-selector">
@@ -119,7 +113,6 @@
     </div>
 
     <div class="grid">
-        
         <div class="sidebar">
             <div class="glass-panel">
                 <p style="font-size: 11px; font-weight: 700; margin-bottom: 20px; letter-spacing: 1px;">NEW TRANSACTION</p>
@@ -154,7 +147,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Date</th>
+                                <th>Day</th>
                                 <th>Amount</th>
                                 <th style="text-align: right;">Action</th>
                             </tr>
@@ -164,7 +157,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 
@@ -218,8 +210,10 @@
         body.innerHTML = data.map(s => {
             const amt = parseFloat(s.amount);
             total += amt;
+            // Get just the day from the "YYYY-MM-DD" string
+            const day = s.sale_date.split('-')[2];
             return `<tr>
-                <td style="color: #666;">${s.sale_date.split('-').reverse().slice(0,2).join('/')}</td>
+                <td style="color: #666; font-weight: 500;">${day}</td>
                 <td style="font-weight:600;">KSH ${amt.toLocaleString()}</td>
                 <td style="text-align: right;"><button class="delete-btn" onclick="deleteSale('${s.id}')">Delete</button></td>
             </tr>`;
@@ -234,15 +228,10 @@
         const amount = document.getElementById('saleAmount').value;
         const dateInput = document.getElementById('saleDate').value;
 
-        if(!amount || !dateInput) return alert("Please fill in both fields");
+        if(!amount || !dateInput) return alert("Fill in both fields");
 
         btn.disabled = true;
-        btn.textContent = "Syncing...";
-        
-        const { error } = await sb.from('sales').insert([{ 
-            sale_date: dateInput, 
-            amount: parseFloat(amount) 
-        }]);
+        const { error } = await sb.from('sales').insert([{ sale_date: dateInput, amount: parseFloat(amount) }]);
         
         if (!error) {
             document.getElementById('saleAmount').value = '';
@@ -252,11 +241,10 @@
             setTodayDate(); 
         }
         btn.disabled = false;
-        btn.textContent = "Save Transaction";
     }
 
     async function deleteSale(id) {
-        if(confirm("Remove this transaction?")) {
+        if(confirm("Remove record?")) {
             await sb.from('sales').delete().eq('id', id);
             fetchData();
         }
@@ -265,8 +253,6 @@
     setTodayDate();
     updateDisplay();
     document.getElementById('saveBtn').addEventListener('click', addSale);
-    
-    // Auto-refresh if data changes on another device
     sb.channel('db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, fetchData).subscribe();
 </script>
 
