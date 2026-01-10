@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mumo 11 | Monthly Sales</title>
+    <title>Mumo 11 | Premium Sales</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -12,16 +12,17 @@
         body {
             background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 50%, #e8e8e8 100%);
             font-family: 'Inter', sans-serif;
-            color: #000000;
-            padding: 15px;
+            color: #000;
+            padding: 20px;
             min-height: 100vh;
             font-size: 14px;
         }
 
-        .container { max-width: 1000px; margin: 0 auto; }
+        .container { max-width: 1200px; margin: 0 auto; }
 
+        /* Header */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .logo h1 { font-size: 24px; font-weight: 600; }
+        .logo h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.5px; }
         .logo p { font-size: 9px; color: rgba(0,0,0,0.4); text-transform: uppercase; letter-spacing: 2px; }
 
         /* Navigation Bar */
@@ -31,49 +32,72 @@
             align-items: center;
             background: #000;
             color: #fff;
-            padding: 12px 20px;
-            border-radius: 16px;
-            margin-bottom: 20px;
+            padding: 14px 24px;
+            border-radius: 18px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
         }
-        .month-display { font-weight: 600; font-size: 16px; }
-        .nav-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+        .month-display { font-weight: 600; font-size: 18px; }
+        .nav-btn { background: rgba(255,255,255,0.15); border: none; color: white; padding: 10px 18px; border-radius: 10px; cursor: pointer; transition: 0.2s; font-size: 12px; }
+        .nav-btn:hover { background: rgba(255,255,255,0.25); }
 
-        .grid { display: grid; grid-template-columns: 320px 1fr; gap: 20px; }
+        /* Desktop Layout (Default) */
+        .grid { 
+            display: grid; 
+            grid-template-columns: 350px 1fr; 
+            gap: 30px; 
+            align-items: start;
+        }
 
         .glass-panel {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(0,0,0,0.05);
-            padding: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            margin-bottom: 20px;
+            border-radius: 24px;
+            border: 1px solid rgba(0,0,0,0.06);
+            padding: 30px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+            margin-bottom: 25px;
         }
 
         /* Stats */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: #fff; padding: 20px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.05); }
-        .stat-label { font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 5px; }
-        .stat-value { font-size: 20px; font-weight: 600; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .stat-card { 
+            background: #fff; 
+            padding: 25px; 
+            border-radius: 24px; 
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .stat-label { font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
+        .stat-value { font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
 
-        /* Form */
-        .input-group { margin-bottom: 15px; }
-        .input-label { font-size: 10px; color: #888; text-transform: uppercase; display: block; margin-bottom: 5px; }
-        .input { width: 100%; background: #f9f9f9; border: 1px solid #eee; border-radius: 10px; padding: 12px; font-family: inherit; font-size: 14px; }
-        .btn { width: 100%; background: #000; color: #fff; padding: 14px; border-radius: 10px; border: none; cursor: pointer; font-weight: 500; text-transform: uppercase; }
+        /* Form Controls */
+        .input-group { margin-bottom: 20px; }
+        .input-label { font-size: 10px; color: #888; text-transform: uppercase; display: block; margin-bottom: 8px; font-weight: 600; }
+        .input { width: 100%; background: #f5f5f5; border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; padding: 14px; font-family: inherit; font-size: 14px; transition: 0.2s; }
+        .input:focus { outline: none; background: #fff; border-color: #000; }
+        .btn { width: 100%; background: #000; color: #fff; padding: 16px; border-radius: 12px; border: none; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
 
         /* Table */
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; font-size: 10px; color: #888; padding: 10px; border-bottom: 1px solid #eee; }
-        td { padding: 12px 10px; border-bottom: 1px solid #f9f9f9; font-size: 13px; }
-        .delete-btn { color: #ff4444; background: none; border: none; cursor: pointer; font-size: 11px; float: right; }
+        th { text-align: left; font-size: 10px; color: #888; padding: 15px 10px; border-bottom: 1px solid #eee; text-transform: uppercase; }
+        td { padding: 18px 10px; border-bottom: 1px solid #f8f8f8; font-size: 14px; }
+        .delete-btn { color: #ff4444; background: none; border: none; cursor: pointer; font-size: 11px; font-weight: 500; opacity: 0.5; transition: 0.2s; }
+        .delete-btn:hover { opacity: 1; }
 
-        /* MOBILE VIEW */
-        @media (max-width: 768px) {
-            .grid { display: flex; flex-direction: column; }
-            .stats-container { order: 1; }
-            .sidebar { order: 2; }
-            .table-container { order: 3; }
+        /* MOBILE VIEW BREAKPOINT */
+        @media (max-width: 850px) {
+            body { padding: 12px; }
+            .grid { display: flex; flex-direction: column; gap: 0; }
+            
+            /* The specific order you loved */
+            .main-content-stats { order: 1; width: 100%; }
+            .sidebar { order: 2; width: 100%; }
+            .main-content-table { order: 3; width: 100%; }
+            
+            .header { padding: 0 5px; }
+            .stat-value { font-size: 19px; }
+            .glass-panel { padding: 20px; }
         }
     </style>
 </head>
@@ -83,9 +107,9 @@
     <div class="header">
         <div class="logo">
             <h1>Bebes 😊</h1>
-            <p>Monthly Sales System</p>
+            <p>Premium Dashboard</p>
         </div>
-        <div id="statusText" style="font-size: 10px; color: #10b981;">● Online</div>
+        <div id="statusText" style="font-size: 10px; color: #10b981; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">● Online</div>
     </div>
 
     <div class="month-selector">
@@ -95,21 +119,10 @@
     </div>
 
     <div class="grid">
-        <div class="stats-container">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Total Sale</div>
-                    <div class="stat-value" id="totalSales">KSH 0</div>
-                </div>
-                <div class="stat-card" style="background: #f0fff4;">
-                    <div class="stat-label">Comm (12%)</div>
-                    <div class="stat-value" id="totalComm" style="color: #10b981;">KSH 0</div>
-                </div>
-            </div>
-        </div>
-
+        
         <div class="sidebar">
             <div class="glass-panel">
+                <p style="font-size: 11px; font-weight: 700; margin-bottom: 20px; letter-spacing: 1px;">NEW TRANSACTION</p>
                 <div class="input-group">
                     <label class="input-label">Date</label>
                     <input type="date" id="saleDate" class="input">
@@ -118,24 +131,40 @@
                     <label class="input-label">Amount (KSH)</label>
                     <input type="number" id="saleAmount" class="input" placeholder="0.00">
                 </div>
-                <button class="btn" id="saveBtn">Save Entry</button>
+                <button class="btn" id="saveBtn">Save Transaction</button>
             </div>
         </div>
 
-        <div class="table-container">
-            <div class="glass-panel">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Amount</th>
-                            <th style="text-align: right;">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody"></tbody>
-                </table>
+        <div style="display: contents;">
+            <div class="main-content-stats">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Month Total</div>
+                        <div class="stat-value" id="totalSales">KSH 0</div>
+                    </div>
+                    <div class="stat-card" style="background: #f0fff4; border-color: #dcfce7;">
+                        <div class="stat-label">Commission</div>
+                        <div class="stat-value" id="totalComm" style="color: #10b981;">KSH 0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-content-table">
+                <div class="glass-panel">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
+
     </div>
 </div>
 
@@ -144,8 +173,8 @@
     const SB_KEY = "sb_publishable_43MxFUwc6ndsbMA8HBPcJg_yZ23uCfm";
     const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
-    let viewDate = new Date(); // Start at today
-    viewDate.setDate(1); // Normalise to 1st of the month
+    let viewDate = new Date();
+    viewDate.setDate(1); 
 
     function setTodayDate() {
         const now = new Date();
@@ -166,7 +195,6 @@
     }
 
     async function fetchData() {
-        // Precise start and end of the viewed month
         const start = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).toISOString().split('T')[0];
         const end = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).toISOString().split('T')[0];
 
@@ -181,7 +209,7 @@
         const body = document.getElementById('tableBody');
         
         if (!data || data.length === 0) {
-            body.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#999;">No records found for this month.</td></tr>';
+            body.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:40px; color:#999;">No records found.</td></tr>';
             document.getElementById('totalSales').textContent = 'KSH 0';
             document.getElementById('totalComm').textContent = 'KSH 0';
             return;
@@ -191,9 +219,9 @@
             const amt = parseFloat(s.amount);
             total += amt;
             return `<tr>
-                <td>${s.sale_date.split('-').reverse().slice(0,2).join('/')}</td>
+                <td style="color: #666;">${s.sale_date.split('-').reverse().slice(0,2).join('/')}</td>
                 <td style="font-weight:600;">KSH ${amt.toLocaleString()}</td>
-                <td><button class="delete-btn" onclick="deleteSale('${s.id}')">Delete</button></td>
+                <td style="text-align: right;"><button class="delete-btn" onclick="deleteSale('${s.id}')">Delete</button></td>
             </tr>`;
         }).join('');
 
@@ -206,9 +234,10 @@
         const amount = document.getElementById('saleAmount').value;
         const dateInput = document.getElementById('saleDate').value;
 
-        if(!amount || !dateInput) return alert("Missing data");
+        if(!amount || !dateInput) return alert("Please fill in both fields");
 
         btn.disabled = true;
+        btn.textContent = "Syncing...";
         
         const { error } = await sb.from('sales').insert([{ 
             sale_date: dateInput, 
@@ -217,19 +246,17 @@
         
         if (!error) {
             document.getElementById('saleAmount').value = '';
-            
-            // LOGIC FIX: Force the view to the month of the sale just added
             const addedDate = new Date(dateInput);
             viewDate = new Date(addedDate.getFullYear(), addedDate.getMonth(), 1);
-            
             updateDisplay();
             setTodayDate(); 
         }
         btn.disabled = false;
+        btn.textContent = "Save Transaction";
     }
 
     async function deleteSale(id) {
-        if(confirm("Remove record?")) {
+        if(confirm("Remove this transaction?")) {
             await sb.from('sales').delete().eq('id', id);
             fetchData();
         }
@@ -238,6 +265,8 @@
     setTodayDate();
     updateDisplay();
     document.getElementById('saveBtn').addEventListener('click', addSale);
+    
+    // Auto-refresh if data changes on another device
     sb.channel('db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, fetchData).subscribe();
 </script>
 
