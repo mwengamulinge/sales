@@ -7,19 +7,15 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2285%22>🖋️</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22white%22/><text y=%22.9em%22 font-size=%2275%22 x=%2215%22 y=%2275%22>🖋️</text></svg>">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: #f4f4f7; font-family: 'Inter', sans-serif; color: #1a1a1a; padding: 12px; }
-
         .container { max-width: 1200px; margin: 0 auto; }
 
-        /* Header */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .logo h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
         .status { font-size: 9px; color: #10b981; font-weight: 700; text-transform: uppercase; }
 
-        /* Navigation */
         .month-selector {
             display: flex; justify-content: space-between; align-items: center;
             background: #111; color: #fff; padding: 10px; border-radius: 8px; margin-bottom: 12px;
@@ -27,53 +23,54 @@
         .month-display { font-weight: 600; font-size: 14px; }
         .nav-btn { background: #333; border: none; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; }
 
-        /* Stats */
+        /* Stats Grid */
         .stats-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-        .stat-card { background: #fff; padding: 12px; border-radius: 8px; border: 1px solid #e0e0e5; }
+        .stat-card { background: #fff; padding: 12px; border-radius: 8px; border: 1px solid #e0e0e5; position: relative; }
         .stat-label { font-size: 8px; color: #71717a; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
         .stat-value { font-size: 16px; font-weight: 700; color: #000; }
 
-        /* Collapsible Triggers */
+        /* Goal Tracker */
+        .goal-container { margin-top: 8px; }
+        .progress-bg { background: #eef0f2; height: 8px; border-radius: 4px; overflow: hidden; margin: 8px 0; }
+        .progress-bar { background: #3b82f6; height: 100%; width: 0%; transition: width 0.5s ease, background 0.5s ease; }
+        .goal-met { background: #10b981 !important; }
+        .goal-info { font-size: 10px; color: #71717a; font-weight: 600; display: flex; justify-content: space-between; }
+        
+        .settings-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; cursor: pointer; font-size: 12px; opacity: 0.4; }
+        .settings-btn:hover { opacity: 1; }
+
+        /* Collapsible Sections */
         .collapsible-trigger {
             width: 100%; background: #fff; border: 1px dashed #bbb; padding: 12px;
             border-radius: 8px; color: #555; font-weight: 600; font-size: 12px;
             margin-bottom: 12px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;
         }
-
-        #entryForm, #tableContent { display: none; margin-bottom: 12px; }
-        #entryForm.active, #tableContent.active { display: block; }
+        #entryForm, #tableContent, #goalSettings { display: none; margin-bottom: 12px; }
+        #entryForm.active, #tableContent.active, #goalSettings.active { display: block; }
 
         .glass-panel { background: #fff; padding: 16px; border-radius: 8px; border: 1px solid #e0e0e5; }
         .panel-title { font-size: 10px; font-weight: 700; color: #71717a; text-transform: uppercase; margin-bottom: 12px; display: block; }
 
-        /* Search Bar */
-        .search-container { margin-bottom: 15px; }
         .search-input {
             width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #e0e0e5;
-            background: #f9f9fb; font-size: 13px; font-family: inherit; transition: border-color 0.2s;
+            background: #f9f9fb; font-size: 13px; font-family: inherit; margin-bottom: 15px;
         }
-        .search-input:focus { outline: none; border-color: #aaa; background: #fff; }
 
-        /* Inputs */
         .input-group { margin-bottom: 12px; }
         .input-label { font-size: 9px; color: #71717a; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; display: block; }
-        .input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #e0e0e5; background: #fff; font-size: 14px; font-family: inherit; }
+        .input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #e0e0e5; background: #fff; font-size: 14px; }
         .btn { width: 100%; background: #000; color: #fff; padding: 12px; border-radius: 6px; border: none; font-weight: 700; text-transform: uppercase; font-size: 11px; cursor: pointer; }
+        .btn-sec { background: #71717a; margin-top: 8px; }
 
-        /* Table */
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; font-size: 9px; color: #a1a1aa; padding: 8px; text-transform: uppercase; border-bottom: 1px solid #f0f0f5; }
         td { padding: 12px 8px; border-bottom: 1px solid #f8f8fa; font-size: 13px; }
-        .day-cell { color: #71717a; font-weight: 500; width: 40px; }
-        .amt-cell { font-weight: 700; color: #111; }
         .delete-btn { color: #ef4444; background: none; border: none; font-size: 10px; font-weight: 600; cursor: pointer; float: right; opacity: 0.6; }
 
         @media (min-width: 850px) {
             body { padding: 24px; }
-            .grid { display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start; }
-            .stats-grid { display: grid; grid-template-columns: 1fr 1fr; } 
-            #entryForm, #tableContent { display: block !important; }
-            .collapsible-trigger { display: none; }
+            .grid { display: grid; grid-template-columns: 350px 1fr; gap: 24px; align-items: start; }
+            .stats-grid { display: flex; } 
         }
     </style>
 </head>
@@ -94,14 +91,34 @@
     <div class="grid">
         <div class="left-col">
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" style="flex: 1;">
+                    <button class="settings-btn" onclick="toggleSection('goalSettings', '', '')">⚙️</button>
                     <div class="stat-label">Total Sale</div>
                     <div class="stat-value" id="totalSales">KSH 0</div>
+                    
+                    <div class="goal-container">
+                        <div class="goal-info">
+                            <span id="goalPercent">0% of Goal</span>
+                            <span id="goalValueDisplay">KSH 0</span>
+                        </div>
+                        <div class="progress-bg"><div id="goalBar" class="progress-bar"></div></div>
+                        <div class="goal-info"><span id="analyticsMsg" style="color: #3b82f6;">Setting target...</span></div>
+                    </div>
                 </div>
-                <div class="stat-card" style="border-left: 3px solid #10b981;">
+                <div class="stat-card" style="border-left: 3px solid #10b981; flex: 1;">
                     <div class="stat-label">Commission (12%)</div>
                     <div class="stat-value" id="totalComm" style="color: #10b981;">KSH 0</div>
                 </div>
+            </div>
+
+            <div id="goalSettings" class="glass-panel">
+                <span class="panel-title">Set Monthly Goal</span>
+                <div class="input-group">
+                    <label class="input-label">Goal Amount (KSH)</label>
+                    <input type="number" id="goalInput" class="input" placeholder="e.g. 35000">
+                </div>
+                <button class="btn" onclick="saveGoal()">Update Goal</button>
+                <button class="btn btn-sec" onclick="toggleSection('goalSettings', '', '')">Cancel</button>
             </div>
 
             <button class="collapsible-trigger" id="formTrigger" onclick="toggleSection('entryForm', 'formTrigger', '+ Record New Sale')">
@@ -110,14 +127,8 @@
 
             <div id="entryForm" class="glass-panel">
                 <span class="panel-title">New Transaction</span>
-                <div class="input-group">
-                    <label class="input-label">Date</label>
-                    <input type="date" id="saleDate" class="input">
-                </div>
-                <div class="input-group">
-                    <label class="input-label">Amount (KSH)</label>
-                    <input type="number" id="saleAmount" class="input" placeholder="0.00">
-                </div>
+                <div class="input-group"><label class="input-label">Date</label><input type="date" id="saleDate" class="input"></div>
+                <div class="input-group"><label class="input-label">Amount (KSH)</label><input type="number" id="saleAmount" class="input" placeholder="0.00"></div>
                 <button class="btn" id="saveBtn">Save Sale</button>
             </div>
         </div>
@@ -129,19 +140,9 @@
 
             <div id="tableContent" class="glass-panel">
                 <span class="panel-title">Sales History</span>
-                
-                <div class="search-container">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Search day or amount..." onkeyup="filterTable()">
-                </div>
-
+                <input type="text" id="searchInput" class="search-input" placeholder="Search day or amount..." onkeyup="filterTable()">
                 <table id="salesTable">
-                    <thead>
-                        <tr>
-                            <th>Day</th>
-                            <th>Amount</th>
-                            <th style="text-align: right;">Action</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Day</th><th>Amount</th><th style="text-align: right;">Action</th></tr></thead>
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
@@ -156,51 +157,70 @@
 
     let currentMonth = new Date().getMonth(); 
     let currentYear = new Date().getFullYear();
+    let monthlyTotals = 0;
 
     function toggleSection(sectionId, triggerId, originalText) {
         const section = document.getElementById(sectionId);
-        const trigger = document.getElementById(triggerId);
         const isActive = section.classList.toggle('active');
-        
-        if (isActive) {
-            trigger.innerHTML = `<span>× Close ${originalText.replace('+ ', '').replace('View ', '')}</span>`;
-        } else {
-            trigger.innerHTML = `<span>${originalText}</span>`;
+        if (triggerId) {
+            const trigger = document.getElementById(triggerId);
+            trigger.innerHTML = isActive ? `<span>× Close ${originalText.replace('+ ', '').replace('View ', '')}</span>` : `<span>${originalText}</span>`;
         }
     }
 
-    // Live search function
-    function filterTable() {
-        const input = document.getElementById("searchInput");
-        const filter = input.value.toUpperCase();
-        const table = document.getElementById("salesTable");
-        const tr = table.getElementsByTagName("tr");
+    // Storage for goals per month/year
+    function getGoal() {
+        const key = `goal_${currentYear}_${currentMonth}`;
+        return localStorage.getItem(key) || 35000;
+    }
 
+    function saveGoal() {
+        const val = document.getElementById('goalInput').value;
+        if (val) {
+            localStorage.setItem(`goal_${currentYear}_${currentMonth}`, val);
+            toggleSection('goalSettings', '', '');
+            updateGoalDisplay();
+        }
+    }
+
+    function updateGoalDisplay() {
+        const goal = getGoal();
+        document.getElementById('goalValueDisplay').textContent = `KSH ${parseInt(goal).toLocaleString()}`;
+        const percent = Math.min(Math.round((monthlyTotals / goal) * 100), 100);
+        const bar = document.getElementById('goalBar');
+        bar.style.width = percent + '%';
+        document.getElementById('goalPercent').textContent = percent + '% of Goal';
+        
+        const analytics = document.getElementById('analyticsMsg');
+        if (monthlyTotals >= goal) {
+            bar.classList.add('goal-met');
+            analytics.style.color = '#10b981';
+            analytics.textContent = `Goal Smashed! Surplus: KSH ${(monthlyTotals - goal).toLocaleString()}`;
+        } else {
+            bar.classList.remove('goal-met');
+            analytics.style.color = '#3b82f6';
+            analytics.textContent = `KSH ${(goal - monthlyTotals).toLocaleString()} more to hit target`;
+        }
+    }
+
+    function filterTable() {
+        const filter = document.getElementById("searchInput").value.toUpperCase();
+        const tr = document.getElementById("salesTable").getElementsByTagName("tr");
         for (let i = 1; i < tr.length; i++) {
-            const tdDay = tr[i].getElementsByTagName("td")[0];
-            const tdAmt = tr[i].getElementsByTagName("td")[1];
-            if (tdDay || tdAmt) {
-                const txtValue = (tdDay.textContent || tdDay.innerText) + (tdAmt.textContent || tdAmt.innerText);
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }
-            }
+            const txt = tr[i].textContent || tr[i].innerText;
+            tr[i].style.display = txt.toUpperCase().indexOf(filter) > -1 ? "" : "none";
         }
     }
 
     function setTodayDate() {
         const now = new Date();
-        const y = now.getFullYear();
-        const m = String(now.getMonth() + 1).padStart(2, '0');
-        const d = String(now.getDate()).padStart(2, '0');
-        document.getElementById('saleDate').value = `${y}-${m}-${d}`;
+        document.getElementById('saleDate').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     }
 
     function updateDisplay() {
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         document.getElementById('monthLabel').textContent = `${months[currentMonth]} ${currentYear}`;
+        document.getElementById('goalInput').value = getGoal();
         fetchData();
     }
 
@@ -214,81 +234,43 @@
     async function fetchData() {
         const monthPadded = String(currentMonth + 1).padStart(2, '0');
         const start = `${currentYear}-${monthPadded}-01`;
-        const lastDayNum = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const end = `${currentYear}-${monthPadded}-${lastDayNum}`;
+        const lastDay = `${currentYear}-${monthPadded}-${new Date(currentYear, currentMonth + 1, 0).getDate()}`;
 
-        const { data, error } = await sb.from('sales')
-            .select('*')
-            .gte('sale_date', start)
-            .lte('sale_date', end)
-            .order('sale_date', { ascending: false });
+        const { data } = await sb.from('sales').select('*').gte('sale_date', start).lte('sale_date', end = lastDay).order('sale_date', { ascending: false });
 
-        let total = 0;
+        monthlyTotals = 0;
         const body = document.getElementById('tableBody');
-        
         if (!data || data.length === 0) {
-            body.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#ccc; font-size:12px;">No sales found.</td></tr>';
-            document.getElementById('totalSales').textContent = 'KSH 0';
-            document.getElementById('totalComm').textContent = 'KSH 0';
-            return;
+            body.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#ccc;">No sales found.</td></tr>';
+        } else {
+            body.innerHTML = data.map(s => {
+                const amt = parseFloat(s.amount);
+                monthlyTotals += amt;
+                return `<tr><td>${s.sale_date.split('-')[2]}</td><td style="font-weight:700;">KSH ${amt.toLocaleString()}</td><td><button class="delete-btn" onclick="deleteSale('${s.id}')">Delete</button></td></tr>`;
+            }).join('');
         }
 
-        body.innerHTML = data.map(s => {
-            const amt = parseFloat(s.amount);
-            total += amt;
-            const day = s.sale_date.split('-')[2];
-            return `<tr>
-                <td class="day-cell">${day}</td>
-                <td class="amt-cell">KSH ${amt.toLocaleString()}</td>
-                <td><button class="delete-btn" onclick="deleteSale('${s.id}')">Delete</button></td>
-            </tr>`;
-        }).join('');
-
-        document.getElementById('totalSales').textContent = `KSH ${total.toLocaleString()}`;
-        document.getElementById('totalComm').textContent = `KSH ${(total * 0.12).toLocaleString()}`;
-        
-        // Re-apply filter if active
-        if (document.getElementById('searchInput').value) filterTable();
+        document.getElementById('totalSales').textContent = `KSH ${monthlyTotals.toLocaleString()}`;
+        document.getElementById('totalComm').textContent = `KSH ${(monthlyTotals * 0.12).toLocaleString()}`;
+        updateGoalDisplay();
     }
 
     async function addSale() {
-        const btn = document.getElementById('saveBtn');
         const amount = document.getElementById('saleAmount').value;
         const dateInput = document.getElementById('saleDate').value;
-
         if(!amount || !dateInput) return;
-
-        btn.disabled = true;
         const { error } = await sb.from('sales').insert([{ sale_date: dateInput, amount: parseFloat(amount) }]);
-        
         if (!error) {
             document.getElementById('saleAmount').value = '';
-            const dateParts = dateInput.split('-');
-            currentYear = parseInt(dateParts[0]);
-            currentMonth = parseInt(dateParts[1]) - 1;
-            
-            if (window.innerWidth < 850 && document.getElementById('entryForm').classList.contains('active')) {
-                toggleSection('entryForm', 'formTrigger', '+ Record New Sale');
-            }
-            
             updateDisplay();
             setTodayDate(); 
         }
-        btn.disabled = false;
     }
 
-    async function deleteSale(id) {
-        if(confirm("Delete entry?")) {
-            await sb.from('sales').delete().eq('id', id);
-            fetchData();
-        }
-    }
+    async function deleteSale(id) { if(confirm("Delete?")) { await sb.from('sales').delete().eq('id', id); fetchData(); } }
 
-    setTodayDate();
-    updateDisplay();
+    setTodayDate(); updateDisplay();
     document.getElementById('saveBtn').addEventListener('click', addSale);
-    sb.channel('db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, fetchData).subscribe();
 </script>
-
 </body>
 </html>
