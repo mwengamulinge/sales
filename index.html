@@ -23,23 +23,19 @@
         .month-display { font-weight: 600; font-size: 14px; }
         .nav-btn { background: #333; border: none; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; }
 
-        /* Stats Grid - Fixed to Single Column */
         .stats-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
         .stat-card { background: #fff; padding: 16px; border-radius: 8px; border: 1px solid #e0e0e5; position: relative; }
         .stat-label { font-size: 8px; color: #71717a; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
         .stat-value { font-size: 18px; font-weight: 700; color: #000; }
 
-        /* Goal Tracker */
         .goal-container { margin-top: 10px; }
         .progress-bg { background: #eef0f2; height: 8px; border-radius: 4px; overflow: hidden; margin: 8px 0; }
         .progress-bar { background: #3b82f6; height: 100%; width: 0%; transition: width 0.5s ease; }
         .goal-met { background: #10b981 !important; }
         .goal-info { font-size: 10px; color: #71717a; font-weight: 600; display: flex; justify-content: space-between; }
         
-        .settings-btn { position: absolute; top: 14px; right: 14px; background: none; border: none; cursor: pointer; font-size: 12px; opacity: 0.3; transition: opacity 0.2s; }
-        .settings-btn:hover { opacity: 1; }
+        .settings-btn { position: absolute; top: 14px; right: 14px; background: none; border: none; cursor: pointer; font-size: 12px; opacity: 0.3; }
 
-        /* Collapsible Sections */
         .collapsible-trigger {
             width: 100%; background: #fff; border: 1px dashed #bbb; padding: 12px;
             border-radius: 8px; color: #555; font-weight: 600; font-size: 12px;
@@ -53,20 +49,17 @@
 
         .input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #e0e0e5; background: #fff; font-size: 14px; margin-bottom: 12px; font-family: inherit; }
         .btn { width: 100%; background: #000; color: #fff; padding: 12px; border-radius: 6px; border: none; font-weight: 700; text-transform: uppercase; font-size: 11px; cursor: pointer; }
-        .btn-sec { background: #f4f4f7; color: #71717a; margin-top: 8px; border: 1px solid #e0e0e5; }
 
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; font-size: 9px; color: #a1a1aa; padding: 8px; text-transform: uppercase; border-bottom: 1px solid #f0f0f5; }
         td { padding: 12px 8px; border-bottom: 1px solid #f8f8fa; font-size: 13px; }
-        .delete-btn { color: #ef4444; background: none; border: none; font-size: 10px; font-weight: 600; cursor: pointer; float: right; padding: 4px; }
+        .delete-btn { color: #ef4444; background: none; border: none; font-size: 10px; font-weight: 600; cursor: pointer; float: right; }
 
-        /* Fixed Desktop Layout */
         @media (min-width: 850px) {
             body { padding: 24px; }
             .grid { display: grid; grid-template-columns: 320px 1fr; gap: 32px; align-items: start; }
             .left-col { position: sticky; top: 24px; }
-            .stats-grid { display: flex; flex-direction: column; } /* Stays vertical on desktop */
-            .stat-value { font-size: 20px; }
+            .stats-grid { display: flex; flex-direction: column; }
         }
     </style>
 </head>
@@ -88,7 +81,7 @@
         <div class="left-col">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <button class="settings-btn" title="Set Goal" onclick="toggleSection('goalSettings')">⚙️</button>
+                    <button class="settings-btn" onclick="toggleSection('goalSettings')">⚙️</button>
                     <div class="stat-label">Total Sale</div>
                     <div class="stat-value" id="totalSales">KSH 0</div>
                     <div class="goal-container">
@@ -106,8 +99,7 @@
             <div id="goalSettings" class="glass-panel">
                 <span class="panel-title">Monthly Goal</span>
                 <input type="number" id="goalInput" class="input" placeholder="Enter Amount">
-                <button class="btn" onclick="saveGoalToDB()">Save to Cloud</button>
-                <button class="btn btn-sec" onclick="toggleSection('goalSettings')">Close</button>
+                <button class="btn" onclick="saveGoalToDB()">Save Goal</button>
             </div>
 
             <button class="collapsible-trigger" id="formTrigger" onclick="toggleSection('entryForm', 'formTrigger', '+ Record New Sale')">
@@ -140,6 +132,7 @@
     const SB_URL = "https://yakeklqcujwcmibzxbwt.supabase.co";
     const SB_KEY = "sb_publishable_43MxFUwc6ndsbMA8HBPcJg_yZ23uCfm";
     const sb = window.supabase.createClient(SB_URL, SB_KEY);
+    const ZAPIER_URL = "https://hooks.zapier.com/hooks/catch/26270667/ulr34ss/";
 
     let currentMonth = new Date().getMonth(); 
     let currentYear = new Date().getFullYear();
@@ -166,8 +159,10 @@
     async function saveGoalToDB() {
         const amount = document.getElementById('goalInput').value;
         const key = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-        const { error } = await sb.from('monthly_goals').upsert({ month_year: key, goal_amount: amount }, { onConflict: 'month_year' });
-        if (!error) { currentGoalAmount = amount; el = document.getElementById('goalSettings'); el.classList.remove('active'); updateGoalUI(); }
+        await sb.from('monthly_goals').upsert({ month_year: key, goal_amount: amount }, { onConflict: 'month_year' });
+        currentGoalAmount = amount;
+        document.getElementById('goalSettings').classList.remove('active');
+        updateGoalUI();
     }
 
     function updateGoalUI() {
@@ -220,8 +215,26 @@
         const amount = document.getElementById('saleAmount').value;
         const dateInput = document.getElementById('saleDate').value;
         if(!amount || !dateInput) return;
+
+        // 1. Save to Database
         const { error } = await sb.from('sales').insert([{ sale_date: dateInput, amount: parseFloat(amount) }]);
-        if (!error) { document.getElementById('saleAmount').value = ''; fetchData(); }
+        
+        if (!error) {
+            // 2. Ping Zapier
+            fetch(ZAPIER_URL, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify({
+                    person: "Bebes",
+                    amount: amount,
+                    date: dateInput,
+                    month_total: monthlyTotals + parseFloat(amount)
+                })
+            });
+
+            document.getElementById('saleAmount').value = '';
+            fetchData();
+        }
     }
 
     async function deleteSale(id) { if(confirm("Delete?")) { await sb.from('sales').delete().eq('id', id); fetchData(); } }
