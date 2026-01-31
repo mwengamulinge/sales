@@ -23,23 +23,19 @@
         .month-display { font-weight: 600; font-size: 14px; }
         .nav-btn { background: #333; border: none; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; }
 
-        /* Stats Grid */
         .stats-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
         .stat-card { background: #fff; padding: 12px; border-radius: 8px; border: 1px solid #e0e0e5; position: relative; }
         .stat-label { font-size: 8px; color: #71717a; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
         .stat-value { font-size: 16px; font-weight: 700; color: #000; }
 
-        /* Goal Tracker */
         .goal-container { margin-top: 8px; }
         .progress-bg { background: #eef0f2; height: 8px; border-radius: 4px; overflow: hidden; margin: 8px 0; }
-        .progress-bar { background: #3b82f6; height: 100%; width: 0%; transition: width 0.5s ease, background 0.5s ease; }
+        .progress-bar { background: #3b82f6; height: 100%; width: 0%; transition: width 0.5s ease; }
         .goal-met { background: #10b981 !important; }
         .goal-info { font-size: 10px; color: #71717a; font-weight: 600; display: flex; justify-content: space-between; }
         
         .settings-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; cursor: pointer; font-size: 12px; opacity: 0.4; }
-        .settings-btn:hover { opacity: 1; }
 
-        /* Collapsible Sections */
         .collapsible-trigger {
             width: 100%; background: #fff; border: 1px dashed #bbb; padding: 12px;
             border-radius: 8px; color: #555; font-weight: 600; font-size: 12px;
@@ -51,26 +47,19 @@
         .glass-panel { background: #fff; padding: 16px; border-radius: 8px; border: 1px solid #e0e0e5; }
         .panel-title { font-size: 10px; font-weight: 700; color: #71717a; text-transform: uppercase; margin-bottom: 12px; display: block; }
 
-        .search-input {
-            width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #e0e0e5;
-            background: #f9f9fb; font-size: 13px; font-family: inherit; margin-bottom: 15px;
-        }
-
-        .input-group { margin-bottom: 12px; }
-        .input-label { font-size: 9px; color: #71717a; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; display: block; }
-        .input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #e0e0e5; background: #fff; font-size: 14px; }
+        .input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #e0e0e5; background: #fff; font-size: 14px; margin-bottom: 10px;}
         .btn { width: 100%; background: #000; color: #fff; padding: 12px; border-radius: 6px; border: none; font-weight: 700; text-transform: uppercase; font-size: 11px; cursor: pointer; }
-        .btn-sec { background: #71717a; margin-top: 8px; }
 
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; font-size: 9px; color: #a1a1aa; padding: 8px; text-transform: uppercase; border-bottom: 1px solid #f0f0f5; }
         td { padding: 12px 8px; border-bottom: 1px solid #f8f8fa; font-size: 13px; }
-        .delete-btn { color: #ef4444; background: none; border: none; font-size: 10px; font-weight: 600; cursor: pointer; float: right; opacity: 0.6; }
+        .delete-btn { color: #ef4444; background: none; border: none; font-size: 10px; font-weight: 600; cursor: pointer; float: right; }
 
         @media (min-width: 850px) {
             body { padding: 24px; }
             .grid { display: grid; grid-template-columns: 350px 1fr; gap: 24px; align-items: start; }
-            .stats-grid { display: flex; } 
+            .stats-grid { flex-direction: row; }
+            .stats-grid .stat-card { flex: 1; }
         }
     </style>
 </head>
@@ -91,56 +80,46 @@
     <div class="grid">
         <div class="left-col">
             <div class="stats-grid">
-                <div class="stat-card" style="flex: 1;">
-                    <button class="settings-btn" onclick="toggleSection('goalSettings', '', '')">⚙️</button>
+                <div class="stat-card">
+                    <button class="settings-btn" onclick="toggleSection('goalSettings')">⚙️</button>
                     <div class="stat-label">Total Sale</div>
                     <div class="stat-value" id="totalSales">KSH 0</div>
-                    
                     <div class="goal-container">
-                        <div class="goal-info">
-                            <span id="goalPercent">0% of Goal</span>
-                            <span id="goalValueDisplay">KSH 0</span>
-                        </div>
+                        <div class="goal-info"><span id="goalPercent">0%</span><span id="goalValueDisplay">Goal: KSH 0</span></div>
                         <div class="progress-bg"><div id="goalBar" class="progress-bar"></div></div>
-                        <div class="goal-info"><span id="analyticsMsg" style="color: #3b82f6;">Setting target...</span></div>
+                        <div class="goal-info"><span id="analyticsMsg" style="color: #3b82f6;">Loading...</span></div>
                     </div>
                 </div>
-                <div class="stat-card" style="border-left: 3px solid #10b981; flex: 1;">
+                <div class="stat-card" style="border-left: 3px solid #10b981;">
                     <div class="stat-label">Commission (12%)</div>
                     <div class="stat-value" id="totalComm" style="color: #10b981;">KSH 0</div>
                 </div>
             </div>
 
             <div id="goalSettings" class="glass-panel">
-                <span class="panel-title">Set Monthly Goal</span>
-                <div class="input-group">
-                    <label class="input-label">Goal Amount (KSH)</label>
-                    <input type="number" id="goalInput" class="input" placeholder="e.g. 35000">
-                </div>
-                <button class="btn" onclick="saveGoal()">Update Goal</button>
-                <button class="btn btn-sec" onclick="toggleSection('goalSettings', '', '')">Cancel</button>
+                <span class="panel-title">Update Goal</span>
+                <input type="number" id="goalInput" class="input" placeholder="Enter Goal Amount">
+                <button class="btn" onclick="saveGoalToDB()">Save to Database</button>
             </div>
 
-            <button class="collapsible-trigger" id="formTrigger" onclick="toggleSection('entryForm', 'formTrigger', '+ Record New Sale')">
-                <span>+ Record New Sale</span>
+            <button class="collapsible-trigger" onclick="toggleSection('entryForm', '+ Record New Sale')">
+                <span id="formBtnText">+ Record New Sale</span>
             </button>
 
             <div id="entryForm" class="glass-panel">
                 <span class="panel-title">New Transaction</span>
-                <div class="input-group"><label class="input-label">Date</label><input type="date" id="saleDate" class="input"></div>
-                <div class="input-group"><label class="input-label">Amount (KSH)</label><input type="number" id="saleAmount" class="input" placeholder="0.00"></div>
-                <button class="btn" id="saveBtn">Save Sale</button>
+                <input type="date" id="saleDate" class="input">
+                <input type="number" id="saleAmount" class="input" placeholder="Amount (KSH)">
+                <button class="btn" onclick="addSale()">Save Sale</button>
             </div>
         </div>
 
         <div class="right-col">
-            <button class="collapsible-trigger" id="tableTrigger" onclick="toggleSection('tableContent', 'tableTrigger', 'View Sales History')">
-                <span>View Sales History</span>
+            <button class="collapsible-trigger" onclick="toggleSection('tableContent', 'View Sales History')">
+                <span id="tableBtnText">View Sales History</span>
             </button>
-
             <div id="tableContent" class="glass-panel">
                 <span class="panel-title">Sales History</span>
-                <input type="text" id="searchInput" class="search-input" placeholder="Search day or amount..." onkeyup="filterTable()">
                 <table id="salesTable">
                     <thead><tr><th>Day</th><th>Amount</th><th style="text-align: right;">Action</th></tr></thead>
                     <tbody id="tableBody"></tbody>
@@ -158,77 +137,53 @@
     let currentMonth = new Date().getMonth(); 
     let currentYear = new Date().getFullYear();
     let monthlyTotals = 0;
+    let currentGoalAmount = 35000;
 
-    function toggleSection(sectionId, triggerId, originalText) {
-        const section = document.getElementById(sectionId);
-        const isActive = section.classList.toggle('active');
-        if (triggerId) {
-            const trigger = document.getElementById(triggerId);
-            trigger.innerHTML = isActive ? `<span>× Close ${originalText.replace('+ ', '').replace('View ', '')}</span>` : `<span>${originalText}</span>`;
-        }
+    function toggleSection(id, originalText) {
+        const el = document.getElementById(id);
+        el.classList.toggle('active');
     }
 
-    // Storage for goals per month/year
-    function getGoal() {
-        const key = `goal_${currentYear}_${currentMonth}`;
-        return localStorage.getItem(key) || 35000;
-    }
-
-    function saveGoal() {
-        const val = document.getElementById('goalInput').value;
-        if (val) {
-            localStorage.setItem(`goal_${currentYear}_${currentMonth}`, val);
-            toggleSection('goalSettings', '', '');
-            updateGoalDisplay();
-        }
-    }
-
-    function updateGoalDisplay() {
-        const goal = getGoal();
-        document.getElementById('goalValueDisplay').textContent = `KSH ${parseInt(goal).toLocaleString()}`;
-        const percent = Math.min(Math.round((monthlyTotals / goal) * 100), 100);
-        const bar = document.getElementById('goalBar');
-        bar.style.width = percent + '%';
-        document.getElementById('goalPercent').textContent = percent + '% of Goal';
+    // Sync Goal to Supabase
+    async function fetchGoalFromDB() {
+        const key = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+        const { data, error } = await sb.from('monthly_goals').select('goal_amount').eq('month_year', key).single();
         
-        const analytics = document.getElementById('analyticsMsg');
-        if (monthlyTotals >= goal) {
-            bar.classList.add('goal-met');
-            analytics.style.color = '#10b981';
-            analytics.textContent = `Goal Smashed! Surplus: KSH ${(monthlyTotals - goal).toLocaleString()}`;
+        currentGoalAmount = (data) ? data.goal_amount : 35000;
+        document.getElementById('goalInput').value = currentGoalAmount;
+        updateGoalUI();
+    }
+
+    async function saveGoalToDB() {
+        const amount = document.getElementById('goalInput').value;
+        const key = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+        
+        // Upsert logic: Update if exists, insert if not
+        const { error } = await sb.from('monthly_goals').upsert({ month_year: key, goal_amount: amount }, { onConflict: 'month_year' });
+        
+        if (!error) {
+            currentGoalAmount = amount;
+            toggleSection('goalSettings');
+            updateGoalUI();
+        }
+    }
+
+    function updateGoalUI() {
+        const percent = Math.min(Math.round((monthlyTotals / currentGoalAmount) * 100), 100);
+        document.getElementById('goalBar').style.width = percent + '%';
+        document.getElementById('goalPercent').textContent = percent + '%';
+        document.getElementById('goalValueDisplay').textContent = `Goal: KSH ${parseInt(currentGoalAmount).toLocaleString()}`;
+        
+        const msg = document.getElementById('analyticsMsg');
+        if (monthlyTotals >= currentGoalAmount) {
+            document.getElementById('goalBar').classList.add('goal-met');
+            msg.textContent = `Target Reached! Surplus: KSH ${(monthlyTotals - currentGoalAmount).toLocaleString()}`;
+            msg.style.color = "#10b981";
         } else {
-            bar.classList.remove('goal-met');
-            analytics.style.color = '#3b82f6';
-            analytics.textContent = `KSH ${(goal - monthlyTotals).toLocaleString()} more to hit target`;
+            document.getElementById('goalBar').classList.remove('goal-met');
+            msg.textContent = `KSH ${(currentGoalAmount - monthlyTotals).toLocaleString()} to go`;
+            msg.style.color = "#3b82f6";
         }
-    }
-
-    function filterTable() {
-        const filter = document.getElementById("searchInput").value.toUpperCase();
-        const tr = document.getElementById("salesTable").getElementsByTagName("tr");
-        for (let i = 1; i < tr.length; i++) {
-            const txt = tr[i].textContent || tr[i].innerText;
-            tr[i].style.display = txt.toUpperCase().indexOf(filter) > -1 ? "" : "none";
-        }
-    }
-
-    function setTodayDate() {
-        const now = new Date();
-        document.getElementById('saleDate').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-    }
-
-    function updateDisplay() {
-        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        document.getElementById('monthLabel').textContent = `${months[currentMonth]} ${currentYear}`;
-        document.getElementById('goalInput').value = getGoal();
-        fetchData();
-    }
-
-    function changeMonth(delta) {
-        currentMonth += delta;
-        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-        else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-        updateDisplay();
     }
 
     async function fetchData() {
@@ -240,19 +195,28 @@
 
         monthlyTotals = 0;
         const body = document.getElementById('tableBody');
-        if (!data || data.length === 0) {
-            body.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#ccc;">No sales found.</td></tr>';
-        } else {
-            body.innerHTML = data.map(s => {
-                const amt = parseFloat(s.amount);
-                monthlyTotals += amt;
-                return `<tr><td>${s.sale_date.split('-')[2]}</td><td style="font-weight:700;">KSH ${amt.toLocaleString()}</td><td><button class="delete-btn" onclick="deleteSale('${s.id}')">Delete</button></td></tr>`;
-            }).join('');
-        }
+        body.innerHTML = (data && data.length > 0) ? data.map(s => {
+            monthlyTotals += parseFloat(s.amount);
+            return `<tr><td>${s.sale_date.split('-')[2]}</td><td style="font-weight:700;">KSH ${parseFloat(s.amount).toLocaleString()}</td><td><button class="delete-btn" onclick="deleteSale('${s.id}')">Delete</button></td></tr>`;
+        }).join('') : '<tr><td colspan="3" style="text-align:center; padding:20px; color:#ccc;">No sales</td></tr>';
 
         document.getElementById('totalSales').textContent = `KSH ${monthlyTotals.toLocaleString()}`;
         document.getElementById('totalComm').textContent = `KSH ${(monthlyTotals * 0.12).toLocaleString()}`;
-        updateGoalDisplay();
+        
+        await fetchGoalFromDB(); // Always sync goal when data changes
+    }
+
+    function changeMonth(delta) {
+        currentMonth += delta;
+        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        updateDisplay();
+    }
+
+    function updateDisplay() {
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        document.getElementById('monthLabel').textContent = `${months[currentMonth]} ${currentYear}`;
+        fetchData();
     }
 
     async function addSale() {
@@ -262,15 +226,15 @@
         const { error } = await sb.from('sales').insert([{ sale_date: dateInput, amount: parseFloat(amount) }]);
         if (!error) {
             document.getElementById('saleAmount').value = '';
-            updateDisplay();
-            setTodayDate(); 
+            fetchData();
         }
     }
 
     async function deleteSale(id) { if(confirm("Delete?")) { await sb.from('sales').delete().eq('id', id); fetchData(); } }
 
-    setTodayDate(); updateDisplay();
-    document.getElementById('saveBtn').addEventListener('click', addSale);
+    const now = new Date();
+    document.getElementById('saleDate').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    updateDisplay();
 </script>
 </body>
 </html>
