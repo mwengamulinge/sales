@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2285%22>🖋️</text></svg>">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22white%22/><text y=%22.9em%22 font-size=%2275%22 x=%2215%22 y=%2275%22>🖋️</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22white%22/><text y=%22.9em%22 font-size=%2275%22 x=%2215%22 y=%2275%22>🖋️</text></svg>">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: #f4f4f7; font-family: 'Inter', sans-serif; color: #1a1a1a; padding: 12px; }
@@ -137,8 +137,9 @@
     const SB_KEY = "sb_publishable_43MxFUwc6ndsbMA8HBPcJg_yZ23uCfm";
     const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
-    let viewDate = new Date();
-    viewDate.setDate(1); 
+    // Track month and year as simple integers to avoid timezone/clock errors
+    let currentMonth = new Date().getMonth(); 
+    let currentYear = new Date().getFullYear();
 
     function toggleForm() {
         const form = document.getElementById('entryForm');
@@ -149,27 +150,44 @@
 
     function setTodayDate() {
         const now = new Date();
-        const offset = now.getTimezoneOffset();
-        const localDate = new Date(now.getTime() - (offset * 60 * 1000));
-        document.getElementById('saleDate').value = localDate.toISOString().split('T')[0];
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        document.getElementById('saleDate').value = `${y}-${m}-${d}`;
     }
 
     function updateDisplay() {
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        document.getElementById('monthLabel').textContent = `${months[viewDate.getMonth()]} ${viewDate.getFullYear()}`;
+        document.getElementById('monthLabel').textContent = `${months[currentMonth]} ${currentYear}`;
         fetchData();
     }
 
     function changeMonth(delta) {
-        viewDate.setMonth(viewDate.getMonth() + delta);
+        currentMonth += delta;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        } else if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        }
         updateDisplay();
     }
 
     async function fetchData() {
-        const start = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).toISOString().split('T')[0];
-        const end = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).toISOString().split('T')[0];
+        // Build raw date strings for the query to bypass UTC midnight shifts
+        const monthPadded = String(currentMonth + 1).padStart(2, '0');
+        const start = `${currentYear}-${monthPadded}-01`;
+        
+        // Accurate last day calculation
+        const lastDayNum = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const end = `${currentYear}-${monthPadded}-${lastDayNum}`;
 
-        const { data, error } = await sb.from('sales').select('*').gte('sale_date', start).lte('sale_date', end).order('sale_date', { ascending: false });
+        const { data, error } = await sb.from('sales')
+            .select('*')
+            .gte('sale_date', start)
+            .lte('sale_date', end)
+            .order('sale_date', { ascending: false });
 
         let total = 0;
         const body = document.getElementById('tableBody');
@@ -184,6 +202,7 @@
         body.innerHTML = data.map(s => {
             const amt = parseFloat(s.amount);
             total += amt;
+            // Extract day number directly from the stored string
             const day = s.sale_date.split('-')[2];
             return `<tr>
                 <td class="day-cell">${day}</td>
@@ -204,13 +223,21 @@
         if(!amount || !dateInput) return;
 
         btn.disabled = true;
+        
+        // Push the raw string from input to the database
         const { error } = await sb.from('sales').insert([{ sale_date: dateInput, amount: parseFloat(amount) }]);
         
         if (!error) {
             document.getElementById('saleAmount').value = '';
-            const addedDate = new Date(dateInput);
-            viewDate = new Date(addedDate.getFullYear(), addedDate.getMonth(), 1);
-            if (window.innerWidth < 850) toggleForm(); // Auto-close on mobile
+            
+            // Re-sync dashboard view to the month of the added record
+            const dateParts = dateInput.split('-');
+            currentYear = parseInt(dateParts[0]);
+            currentMonth = parseInt(dateParts[1]) - 1;
+            
+            if (window.innerWidth < 850 && document.getElementById('entryForm').classList.contains('active')) {
+                toggleForm();
+            }
             updateDisplay();
             setTodayDate(); 
         }
@@ -227,7 +254,10 @@
     setTodayDate();
     updateDisplay();
     document.getElementById('saveBtn').addEventListener('click', addSale);
-    sb.channel('db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, fetchData).subscribe();
+    
+    sb.channel('db-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, fetchData)
+      .subscribe();
 </script>
 
 </body>
