@@ -27,23 +27,32 @@
         .month-display { font-weight: 600; font-size: 14px; }
         .nav-btn { background: #333; border: none; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; }
 
-        /* Stats - Forced Single Column for Mobile */
+        /* Stats */
         .stats-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
         .stat-card { background: #fff; padding: 12px; border-radius: 8px; border: 1px solid #e0e0e5; }
         .stat-label { font-size: 8px; color: #71717a; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
         .stat-value { font-size: 16px; font-weight: 700; color: #000; }
 
-        /* Collapsible Entry Form */
+        /* Collapsible Triggers */
         .collapsible-trigger {
             width: 100%; background: #fff; border: 1px dashed #bbb; padding: 12px;
             border-radius: 8px; color: #555; font-weight: 600; font-size: 12px;
             margin-bottom: 12px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;
         }
-        #entryForm { display: none; margin-bottom: 12px; }
-        #entryForm.active { display: block; }
+
+        #entryForm, #tableContent { display: none; margin-bottom: 12px; }
+        #entryForm.active, #tableContent.active { display: block; }
 
         .glass-panel { background: #fff; padding: 16px; border-radius: 8px; border: 1px solid #e0e0e5; }
         .panel-title { font-size: 10px; font-weight: 700; color: #71717a; text-transform: uppercase; margin-bottom: 12px; display: block; }
+
+        /* Search Bar */
+        .search-container { margin-bottom: 15px; }
+        .search-input {
+            width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #e0e0e5;
+            background: #f9f9fb; font-size: 13px; font-family: inherit; transition: border-color 0.2s;
+        }
+        .search-input:focus { outline: none; border-color: #aaa; background: #fff; }
 
         /* Inputs */
         .input-group { margin-bottom: 12px; }
@@ -51,7 +60,7 @@
         .input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #e0e0e5; background: #fff; font-size: 14px; font-family: inherit; }
         .btn { width: 100%; background: #000; color: #fff; padding: 12px; border-radius: 6px; border: none; font-weight: 700; text-transform: uppercase; font-size: 11px; cursor: pointer; }
 
-        /* Table - Always Visible */
+        /* Table */
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; font-size: 9px; color: #a1a1aa; padding: 8px; text-transform: uppercase; border-bottom: 1px solid #f0f0f5; }
         td { padding: 12px 8px; border-bottom: 1px solid #f8f8fa; font-size: 13px; }
@@ -59,12 +68,11 @@
         .amt-cell { font-weight: 700; color: #111; }
         .delete-btn { color: #ef4444; background: none; border: none; font-size: 10px; font-weight: 600; cursor: pointer; float: right; opacity: 0.6; }
 
-        /* Desktop View Overrides */
         @media (min-width: 850px) {
             body { padding: 24px; }
             .grid { display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start; }
-            .stats-grid { display: grid; grid-template-columns: 1fr 1fr; } /* Side-by-side on desktop */
-            #entryForm { display: block !important; }
+            .stats-grid { display: grid; grid-template-columns: 1fr 1fr; } 
+            #entryForm, #tableContent { display: block !important; }
             .collapsible-trigger { display: none; }
         }
     </style>
@@ -96,7 +104,7 @@
                 </div>
             </div>
 
-            <button class="collapsible-trigger" id="formTrigger" onclick="toggleForm()">
+            <button class="collapsible-trigger" id="formTrigger" onclick="toggleSection('entryForm', 'formTrigger', '+ Record New Sale')">
                 <span>+ Record New Sale</span>
             </button>
 
@@ -115,9 +123,18 @@
         </div>
 
         <div class="right-col">
-            <div class="glass-panel">
+            <button class="collapsible-trigger" id="tableTrigger" onclick="toggleSection('tableContent', 'tableTrigger', 'View Sales History')">
+                <span>View Sales History</span>
+            </button>
+
+            <div id="tableContent" class="glass-panel">
                 <span class="panel-title">Sales History</span>
-                <table>
+                
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search day or amount..." onkeyup="filterTable()">
+                </div>
+
+                <table id="salesTable">
                     <thead>
                         <tr>
                             <th>Day</th>
@@ -137,15 +154,40 @@
     const SB_KEY = "sb_publishable_43MxFUwc6ndsbMA8HBPcJg_yZ23uCfm";
     const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
-    // Track month and year as simple integers to avoid timezone/clock errors
     let currentMonth = new Date().getMonth(); 
     let currentYear = new Date().getFullYear();
 
-    function toggleForm() {
-        const form = document.getElementById('entryForm');
-        const trigger = document.getElementById('formTrigger');
-        const isActive = form.classList.toggle('active');
-        trigger.innerHTML = isActive ? '<span>× Close Form</span>' : '<span>+ Record New Sale</span>';
+    function toggleSection(sectionId, triggerId, originalText) {
+        const section = document.getElementById(sectionId);
+        const trigger = document.getElementById(triggerId);
+        const isActive = section.classList.toggle('active');
+        
+        if (isActive) {
+            trigger.innerHTML = `<span>× Close ${originalText.replace('+ ', '').replace('View ', '')}</span>`;
+        } else {
+            trigger.innerHTML = `<span>${originalText}</span>`;
+        }
+    }
+
+    // Live search function
+    function filterTable() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById("salesTable");
+        const tr = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < tr.length; i++) {
+            const tdDay = tr[i].getElementsByTagName("td")[0];
+            const tdAmt = tr[i].getElementsByTagName("td")[1];
+            if (tdDay || tdAmt) {
+                const txtValue = (tdDay.textContent || tdDay.innerText) + (tdAmt.textContent || tdAmt.innerText);
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
     }
 
     function setTodayDate() {
@@ -164,22 +206,14 @@
 
     function changeMonth(delta) {
         currentMonth += delta;
-        if (currentMonth > 11) {
-            currentMonth = 0;
-            currentYear++;
-        } else if (currentMonth < 0) {
-            currentMonth = 11;
-            currentYear--;
-        }
+        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
         updateDisplay();
     }
 
     async function fetchData() {
-        // Build raw date strings for the query to bypass UTC midnight shifts
         const monthPadded = String(currentMonth + 1).padStart(2, '0');
         const start = `${currentYear}-${monthPadded}-01`;
-        
-        // Accurate last day calculation
         const lastDayNum = new Date(currentYear, currentMonth + 1, 0).getDate();
         const end = `${currentYear}-${monthPadded}-${lastDayNum}`;
 
@@ -202,7 +236,6 @@
         body.innerHTML = data.map(s => {
             const amt = parseFloat(s.amount);
             total += amt;
-            // Extract day number directly from the stored string
             const day = s.sale_date.split('-')[2];
             return `<tr>
                 <td class="day-cell">${day}</td>
@@ -213,6 +246,9 @@
 
         document.getElementById('totalSales').textContent = `KSH ${total.toLocaleString()}`;
         document.getElementById('totalComm').textContent = `KSH ${(total * 0.12).toLocaleString()}`;
+        
+        // Re-apply filter if active
+        if (document.getElementById('searchInput').value) filterTable();
     }
 
     async function addSale() {
@@ -223,21 +259,18 @@
         if(!amount || !dateInput) return;
 
         btn.disabled = true;
-        
-        // Push the raw string from input to the database
         const { error } = await sb.from('sales').insert([{ sale_date: dateInput, amount: parseFloat(amount) }]);
         
         if (!error) {
             document.getElementById('saleAmount').value = '';
-            
-            // Re-sync dashboard view to the month of the added record
             const dateParts = dateInput.split('-');
             currentYear = parseInt(dateParts[0]);
             currentMonth = parseInt(dateParts[1]) - 1;
             
             if (window.innerWidth < 850 && document.getElementById('entryForm').classList.contains('active')) {
-                toggleForm();
+                toggleSection('entryForm', 'formTrigger', '+ Record New Sale');
             }
+            
             updateDisplay();
             setTodayDate(); 
         }
@@ -254,10 +287,7 @@
     setTodayDate();
     updateDisplay();
     document.getElementById('saveBtn').addEventListener('click', addSale);
-    
-    sb.channel('db-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, fetchData)
-      .subscribe();
+    sb.channel('db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, fetchData).subscribe();
 </script>
 
 </body>
